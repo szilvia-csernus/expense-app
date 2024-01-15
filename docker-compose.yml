@@ -1,0 +1,51 @@
+version: '3.7'
+
+services:
+  backend:
+    container_name: backend
+    build:
+      context: .
+      dockerfile: ./full-stack/backend/Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./full-stack/backend/.env
+    depends_on:
+      - db
+    
+  db:
+    container_name: db
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"
+    env_file:
+      - ./full-stack/backend/.env
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  frontend:
+    container_name: frontend
+    build:
+      context: ./full-stack/frontend
+      dockerfile: Dockerfile
+    volumes:
+      - frontend:/app/dist
+  
+  nginx:
+    container_name: nginx
+    build:
+      context: ./full-stack/nginx
+      dockerfile: Dockerfile
+    volumes:
+      - static:/static
+      - frontend:/var/www/frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+      - frontend
+
+volumes:
+  db-data:
+  static:
+  frontend:
