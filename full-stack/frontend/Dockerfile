@@ -1,0 +1,19 @@
+FROM node:alpine3.19 AS build
+WORKDIR /app
+
+COPY package.json .
+COPY package-lock.json .
+COPY vite.config.ts .
+COPY tsconfig.json .
+COPY tsconfig.node.json .
+
+# We don't use the --production flag because @vitejs/plugin-react is needed when running npm run build and @vitejs/plugin-react
+# is listed under devDependencies. It's needed to build the app for production inside the Docker container.
+# The final built application that runs in production will not include these development dependencies. 
+RUN npm ci  
+
+COPY src ./src
+COPY public ./public
+COPY index.html .
+
+RUN npm run build
