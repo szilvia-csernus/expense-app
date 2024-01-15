@@ -1,23 +1,9 @@
-#!/bin/bash
+#!/bin/sh
 
-APP_PORT=${PORT:-8000}
+sleep 5 # allowing the postgres server to start up
+python manage.py makemigrations
+python manage.py migrate --no-input
+python manage.py superuser
+python manage.py collectstatic --no-input
 
-echo "Waiting for postgres."
-sleep 5
-echo "PostgreSQL started"
-
-echo "Migrating database..."
-/venv/bin/python manage.py makemigrations --noinput
-/venv/bin/python manage.py migrate --noinput
-echo "Database migrated."
-
-echo "Creating superuser..."
-/venv/bin/python manage.py superuser --noinput
-echo "Superuser created"
-
-echo "Collecting static files"
-/venv/bin/python manage.py collectstatic --noinput
-echo "Static files collected."
-
-echo "Starting server..."
-/venv/bin/gunicorn expense_app.wsgi:application --bind "0.0.0.0:${APP_PORT}" --workers 4
+gunicorn expense_app.wsgi:application --bind "0.0.0.0:8000"
