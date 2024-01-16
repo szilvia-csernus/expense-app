@@ -33,11 +33,14 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'cloudinary_storage', # for cloudinary
     'django.contrib.staticfiles',
+    'cloudinary', # for cloudinary
     'rest_framework',
     'corsheaders', # new
     
     'custom_commands',
+    'profiles',
 ]
 
 MIDDLEWARE = [
@@ -140,3 +143,10 @@ WHITENOISE_STATIC_ROOT = BASE_DIR / 'staticfiles' # new
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CLOUDINARY_STORAGE = {
+    'CLOUDINARY_URL': config("CLOUDINARY_URL", cast=str),
+}
+
+MEDIA_URL = '/media/'
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
