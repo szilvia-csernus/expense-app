@@ -1,6 +1,6 @@
 # Expense App
 
-A full-stack web application using Django REST, postgreSQL, ReactJS + Typescript @vite, and Docker. Created for streamlining the expense reinbursement process for church members of Redeemer churches in the Neatherlands.
+Full-stack web application using Django REST, postgreSQL, ReactJS + Typescript @vite, and Docker. Created for streamlining the expense reinbursement process for church members of Redeemer churches in the Neatherlands.
 
 # How to use the project
 
