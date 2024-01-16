@@ -1,7 +1,7 @@
 #!/bin/sh
 
-sleep 5 # allowing the postgres server to start up
-python manage.py makemigrations
+# allowing the postgres server to start up
+sh ./wait-for-postgres.sh db python manage.py makemigrations
 python manage.py migrate --no-input
 python manage.py superuser
 python manage.py collectstatic --no-input

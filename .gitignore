@@ -2,4 +2,5 @@ venv
 .vscode
 *.pyc
 __pycache__
-.env
+.env.prod
+.env.dev

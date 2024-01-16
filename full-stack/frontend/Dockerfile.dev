@@ -1,0 +1,14 @@
+FROM node:alpine3.19
+WORKDIR /app
+
+COPY package*.json ./
+COPY tsconfig*.json ./
+COPY vite.config.ts .
+ 
+RUN npm ci  
+
+COPY src ./src
+COPY public ./public
+COPY index.html .
+
+CMD ["npm", "run", "dev"]

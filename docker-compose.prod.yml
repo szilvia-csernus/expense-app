@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+
+  db:
+    container_name: db
+    environment:
+      POSTGRES_DB: db
+    image: postgres:15-alpine
+    ports:
+      - "5432:5432"
+    env_file:
+      - ./full-stack/backend/.env.prod
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  backend:
+    container_name: backend
+    build:
+      context: .
+      dockerfile: ./full-stack/backend/Dockerfile.prod
+    ports:
+      - "8000:8000"
+    environment:
+      - DJANGO_ENV=production
+    env_file:
+      - ./full-stack/backend/.env.prod
+    volumes:
+      - static_volume:/static/
+    depends_on:
+      - db
+
+  frontend:
+    container_name: frontend
+    build:
+      context: ./full-stack/frontend
+      dockerfile: Dockerfile.prod
+    volumes:
+      - frontend:/app/dist
+    env_file:
+      - ./full-stack/frontend/.env.prod
+  
+  nginx:
+    container_name: nginx
+    build:
+      context: ./full-stack/nginx
+      dockerfile: Dockerfile
+    volumes:
+      - static_volume:/static/
+      - frontend:/var/www/frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+      - frontend
+
+volumes:
+  db-data:
+  static_volume:
+  frontend:

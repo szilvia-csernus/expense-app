@@ -1,5 +1,16 @@
 from pathlib import Path
-from decouple import config
+from decouple import Config
+import os
+
+# Get the path to the directory of the current file
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Get the current environment from the DJANGO_ENV variable
+django_env = os.getenv('DJANGO_ENV', 'development')
+
+# Load the appropriate .env file
+env_file = os.path.join(current_dir, f'.env.{django_env}')
+config = Config(env_file)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -12,9 +23,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config("SECRET_KEY", cast=str)
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config("DEBUG", cast=bool, default=False)
+DEBUG = True
 
-ALLOWED_HOSTS = ['0.0.0.0']
+ALLOWED_HOSTS = ['0.0.0.0', 'localhost']
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost",
