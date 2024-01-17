@@ -1,8 +1,11 @@
+from django.http import Http404
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializers import ProfileSerializer
 
 from .models import Profile
+
 
 class ProfileList(APIView):
     def get(self, request):
@@ -11,14 +14,39 @@ class ProfileList(APIView):
         return Response(serializer.data)
 
 
-# class ProfileDetail(APIView):
-#     def get(self, request, pk):
-#         profile = Profile.objects.get(id=pk)
-#         data = {
-#             "id": profile.id,
-#             "name": profile.name,
-#             "bank_account": profile.bank_account,
-#             "bank_account_name": profile.bank_account_name,
-#             "owner": profile.owner.id,
-#         }
-#         return Response(data)
+class ProfileDetail(APIView):
+    # This is for the django browsable API to display the fields
+    serializer_class = ProfileSerializer
+
+    def get_object(self, request, pk):
+        try:
+            return Profile.objects.get(pk=pk)
+        except Profile.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk):
+        profile = self.get_object(request, pk)
+        serializer = ProfileSerializer(profile)
+        return Response(serializer.data)
+
+    def put(self, request, pk):
+        profile = self.get_object(request, pk)
+        serializer = ProfileSerializer(profile, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, pk):
+        profile = self.get_object(request, pk)
+        profile.delete()
+        return Response(status=204)
+
+    def patch(self, request, pk):
+        profile = self.get_object(request, pk)
+        serializer = ProfileSerializer(profile, data=request.data,
+                                       partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors)
