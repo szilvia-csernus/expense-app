@@ -2,5 +2,7 @@ venv
 .vscode
 *.pyc
 __pycache__
-.env.prod
+.env
 .env.dev
+.env.prod
+*.sqlite3
