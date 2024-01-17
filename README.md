@@ -5,7 +5,7 @@ Full-stack web application using Django REST, postgreSQL, ReactJS + Typescript @
 # How to use the project
 
 You will need Docker to utilise the project's docker configuration, more info: https://docs.docker.com/get-docker/.
-I provieded Dockerfiles and docker-compose files to run this project either in development or production mode.
+Dockerfiles and docker-compose files are provided to run this project both in development or production modes.
 
 ## Set up the necessary files and accounts
 
@@ -47,7 +47,7 @@ I provieded Dockerfiles and docker-compose files to run this project either in d
     Both servers refresh whenever the source code gets changed.
 * To set up the database, you first need to apply the migrations: `docker exec -it backend python manage.py migrate`
 * Then, create a superuser: `docker exec -it backend python manage.py createsuperuser`
-* If you need to install a new package, Pillow in this case: `docker exec -it backend pip install Pillow`
+* If you need to install a new package (Pillow in this case), run: `docker exec -it backend pip install Pillow`
 * After each install, you have to update the requirements.txt: `docker exec -it backend pip freeze > requirements.txt.` This will overwrite your existing `requirements.txt` file with the current state of installed packages in the container.
 * After each install, you also have to rebuild the Docker image using this command: `docker-compose -p dev_expense_app -f docker-compose.dev.yml up --build && docker image prune -f`. The second, `docker image prune -f` command is used to remove the old image which otherwise would stay there, dangling. Please note however, that this command will remove all other dangling images in case there was any (although this is not a bad thing :)
 * Whenever you modify the database models, don't forget to migrate the changes with the `docker exec -it backend python manage.py makemigrations` and the `docker exec -it backend python manage.py migrate` commands.
