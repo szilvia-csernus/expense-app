@@ -1,0 +1,11 @@
+.container {
+    background-color: rgba(128, 128, 128, 0.2);
+    }
+
+@media screen and (min-width: 900px) {
+    .container {
+        width: 900px;
+        margin: auto;
+    }
+    
+}
