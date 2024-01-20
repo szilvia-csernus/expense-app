@@ -1,0 +1,106 @@
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Expense Reimbursement App for Redeemer Church Members">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@600&family=Quicksand:wght@400;700&display=swap"
+        rel="stylesheet">
+    <meta name="theme-color" content="#ffffff">
+    <title>Expense Reimbursement</title>
+    <style type="text/css">
+        body {
+            font-family: "Quicksand";
+            font-size: 15px;
+            color: rgb(50, 50, 50);
+        }
+
+        header {
+            height: 60px;
+        }
+
+        h1 {
+            font-family: "Josefin Sans";
+            font-size: 21px;
+            font-weight: bold;
+            color: rgb(50, 50, 50);
+            margin-top: 35px;
+        }
+
+        h2 {
+            font-family: "Josefin Sans";
+            font-size: 18px;
+            font-weight: bold;
+            color: rgb(50, 50, 50);
+            margin-top: 20px;
+            border-bottom: 1px solid rgb(204, 204, 204);
+        }
+
+        .logo {
+            height: 60px;
+            width: auto;
+            display: block;
+        }
+    
+        .labelText {
+            display: block;
+            font-size: 16px;
+            font-weight: bold;
+            color: rgb(50, 50, 50);
+            margin-top: 8px;
+        }
+
+        .pagebreak { 
+            page-break-before: always; 
+    }
+
+    </style>
+</head>
+
+<body>
+    <div class="content">
+        <header><img src="{{ logo }}" class="logo" alt="logo"></header>
+        <div>
+            <h1>EXPENSE FORM</h1>
+            <div>
+                <h2>PERSONAL INFORMATION</h2>
+                
+                <div class="labelText">Name</div>
+                <div id="name" class="formInput">{{ name }}</div>
+
+                <div class="labelText">Email address</div>
+                <div id="email" class="formInput">{{ email }}</div>
+
+                <h2>EXPENSES</h2>
+
+                <div class="labelText">Church</div>
+                <div id="church" class="formInput">{{ church }}</div>
+
+                <div class="labelText">Purpose</div>
+                <div id="purpose" class="formInput">{{ purpose }}</div>
+
+                <div for="date" class="labelText">Date of expense (on receipt)</div>
+                <div id="date" class="formInput">{{ date }}</div>
+
+                <div class="labelText">Description</div>
+                <div id="description" class="formInput">{{ description }}</div>
+                    
+                <div class="labelText">Total</div>
+                <div id="total" class="formInput">€{{ total }}</div>
+
+                <h2>BANK DETAILS</h2>
+                
+                <div class="labelText">Bank Account</div>
+                <div id="iban" class="formInput">{{ iban }}</div>
+                
+                <div class="labelText">Name of Bank Account Holder (if different)</div>
+                <div id="accountName" class="formInput">{{ accountName }}</div>
+                
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

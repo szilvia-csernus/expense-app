@@ -37,6 +37,7 @@ ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1']
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
+    "http://192.168.40.59:5173",
     "http://127.0.0.1",
     "http://0.0.0.0",
 ]
@@ -79,7 +80,7 @@ ROOT_URLCONF = 'expense_app.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -169,6 +170,10 @@ WHITENOISE_STATIC_ROOT = BASE_DIR / 'staticfiles'  # new
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# The default file size limit is 2.5 MB. As the user can upload up to 5MB of
+# images and we have to process them to create the PDF, we increased the limit.
+FILE_UPLOAD_MAX_MEMORY_SIZE = 6 * 1024 * 1024  # 5 MB
+
 CLOUDINARY_STORAGE = {
     'CLOUDINARY_URL': os.getenv("CLOUDINARY_URL"),
 }
@@ -176,7 +181,7 @@ CLOUDINARY_STORAGE = {
 MEDIA_URL = '/media/'
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
-if 'DEVELOPMENT' in os.environ:
+if 'DJANGO_ENV' == 'development':
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
     DEFAULT_FROM_EMAIL = os.environ.get('EMAIL_HOST_USER')
 else:
