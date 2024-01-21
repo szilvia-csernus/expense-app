@@ -9,6 +9,9 @@ from django.conf import settings
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from xhtml2pdf import pisa
+from django.shortcuts import get_object_or_404
+from .models import ClaimsCounter
+import os
 
 
 # Open the file, if it's an image, resize if necessary and convert it to PDF
@@ -40,10 +43,13 @@ def process_file(file, max_size):
 
 @api_view(['POST'])
 def send_expense_form(request):
+    counter_obj = get_object_or_404(ClaimsCounter, pk=1)
+    counter = str(counter_obj.counter)
     form_data = request.data
 
-    email_body = (
-        'Expense Form Submission\n\n'
+    form_data['counter'] = counter
+
+    main_message = (
         'Name: ' + form_data['name'] + '\n' +
         'Email: ' + form_data['email'] + '\n' +
         'Church: ' + form_data['church'] + '\n' +
@@ -55,14 +61,33 @@ def send_expense_form(request):
         'Name of Bank Account Holder: ' + form_data['accountName'] + '\n\n'
     )
 
+    message_to_submitter = (
+        'Dear ' + form_data['name'] + ', \n\n' +
+        'Thank you for submitting an expense form. We will process ' +
+        'it shortly.' + '\n' +
+        "If you don't hear from us, or if the reimbursement doesn't arrive " +
+        'to you within 2 weeks, then please reach out to us at ' +
+        os.environ['FINANCE_EMAIL'] + '.\n\n' +
+
+        'Attila' + '\n' +
+        'Finance Team' + '\n' +
+        'Redeemer International Church Rotterdam' + '\n\n' +
+
+        'Ps - the submitted data:' + '\n\n' +
+        main_message
+    )
+
+    message_to_finance = (
+        'Expense Form Submission' + '\n\n' +
+        main_message
+    )
+
     logo_file = form_data.get('logo')
-    print(f"Logo path: {logo_file}")
 
     if isinstance(logo_file, InMemoryUploadedFile):
 
         # This path will change once I impleement the churches app!
         logo_path = "/tmp/" + logo_file.name
-        print(f"New logo path: {logo_path}")
 
         # Add the logo path to the form data.
         form_data['logo'] = logo_path
@@ -104,23 +129,38 @@ def send_expense_form(request):
         i += 1
 
     # Create the email message.
-    email = EmailMessage(
-        'Expense Form submission by ' + form_data['name'],
-        email_body,
+    subject = 'Expense Form ' + counter + ' - ' + form_data['purpose']
+    email_acknowledgement = EmailMessage(
+        subject,
+        message_to_submitter,
         settings.DEFAULT_FROM_EMAIL,
-        ['csernus.szilvi@gmail.com']
+        [form_data['email']]
+    )
+
+    email_to_finance = EmailMessage(
+        subject,
+        message_to_finance,
+        settings.DEFAULT_FROM_EMAIL,
+        [os.environ['FINANCE_EMAIL']]
     )
 
     # Create the final PDF and close the merger.
     final_buffer = BytesIO()
     pdf_merge.write(final_buffer)
 
-    # Attach the final PDF to the email.
-    email.attach("attachment.pdf", final_buffer.getvalue(), "application/pdf")
-
-    email.send()
+    # Attach the final PDF to the emails an send them.
+    attachment_name = 'EF' + counter + '.pdf'
+    email_to_finance.attach(attachment_name,
+                            final_buffer.getvalue(), "application/pdf")
+    email_to_finance.send()
+    email_acknowledgement.attach(attachment_name,
+                                 final_buffer.getvalue(), "application/pdf")
+    email_acknowledgement.send()
 
     final_buffer.close()
     pdf_merge.close()
+
+    # After the email has been sent, increment the counter
+    counter_obj.increment()
 
     return Response(status=200, data={"message": "Email sent."})

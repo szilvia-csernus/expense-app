@@ -61,6 +61,7 @@ INSTALLED_APPS = [
 
     'custom_commands',
     'profiles',
+    'claims',
 ]
 
 MIDDLEWARE = [
@@ -193,5 +194,7 @@ else:
     DEFAULT_FROM_EMAIL = os.environ.get('EMAIL_HOST_USER')
     EMAIL_PORT = 587
     SERVER_EMAIL = os.environ.get('EMAIL_HOST_USER')
+
+FINANCE_EMAIL = os.environ.get('FINANCE_EMAIL')
 
 ADMINS = [('Admin', os.environ.get('EMAIL_HOST_USER'))]
