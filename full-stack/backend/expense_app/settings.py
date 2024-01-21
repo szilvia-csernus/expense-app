@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     'custom_commands',
     'profiles',
     'claims',
+    'churches',
 ]
 
 MIDDLEWARE = [
