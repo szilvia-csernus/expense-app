@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from xhtml2pdf import pisa
 from django.shortcuts import get_object_or_404
 from .models import ClaimsCounter
+from churches.models import Church
 import os
 
 
@@ -48,6 +49,9 @@ def send_expense_form(request):
     form_data = request.data
 
     form_data['counter'] = counter
+    church_name = form_data['church']
+    logo = get_object_or_404(Church, name=church_name).logo
+    form_data['logo'] = logo.url
 
     main_message = (
         'Name: ' + form_data['name'] + '\n' +
@@ -81,16 +85,6 @@ def send_expense_form(request):
         'Expense Form Submission' + '\n\n' +
         main_message
     )
-
-    logo_file = form_data.get('logo')
-
-    if isinstance(logo_file, InMemoryUploadedFile):
-
-        # This path will change once I impleement the churches app!
-        logo_path = "/tmp/" + logo_file.name
-
-        # Add the logo path to the form data.
-        form_data['logo'] = logo_path
 
     # Create a file-like buffer to receive PDF data.
     form_buffer = BytesIO()

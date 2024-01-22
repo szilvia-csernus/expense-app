@@ -1,8 +1,6 @@
 import { errorMessageActions } from './error-message-slice';
 import { thankYouMessageActions } from './thank-you-message-slice';
 import { costFormActions } from './cost-form-slice';
-import rotterdamLogoUrl from '../images/rotterdamLogo.png';
-import delftLogoUrl from '../images/delftLogo.png';
 import { AppDispatch } from '.';
 import { Dispatch } from '@reduxjs/toolkit';
 
@@ -16,23 +14,6 @@ function closeAfterTimeout(dispatch: AppDispatch) {
 	return () => clearTimeout(timeoutId);
 }
 
-const fetchAndAppendChurchLogo = async (formData: FormData) => {
-	const church = formData.get('church');
-	if (church === 'Rotterdam') {
-		return fetch(rotterdamLogoUrl)
-			.then((response) => response.blob())
-			.then((blob) => {
-				formData.append('logo', blob, 'logo.png');
-			});
-	} else if (church === 'Delft') {
-		return fetch(delftLogoUrl)
-			.then((response) => response.blob())
-			.then((blob) => {
-				formData.append('logo', blob, 'logo.png');
-			});
-	}
-};
-
 export const send = async (
 	dispatch: Dispatch,
 	formData: FormData,
@@ -40,8 +21,6 @@ export const send = async (
 	resetFileUploader: () => void
 ) => {
 	dispatch(costFormActions.setSending());
-
-	await fetchAndAppendChurchLogo(formData);
 
 	const result = await fetch(
 		'http://127.0.0.1:8000/claims/send_expense_form/',
