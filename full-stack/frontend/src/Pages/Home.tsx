@@ -9,18 +9,19 @@ import SelectChurch from '../Components/SelectChurch';
 
 import { useAppDispatch, useAppSelector } from '../store';
 import { useEffect } from 'react';
-import { getChurchDetails } from '../store/church-action-creators';
+import { getChurchDetails, getChurches } from '../store/church-action-creators';
 
 function Home() {
-    const selectChurchStatus = useAppSelector(state => state.selectChurch.status)
+    const selectChurchStatus = useAppSelector(state => state.church.status)
     const thankYouMessage = useAppSelector(state => state.thankYouMessage);
     const errorMessage = useAppSelector(state => state.errorMessage.status);
     const sending = useAppSelector(state => state.costForm.sending);
-    const church = useAppSelector(state => state.selectChurch.church);
+    const church = useAppSelector(state => state.church.church);
     const dispatch = useAppDispatch();
 
     useEffect(() => {
-        getChurchDetails(dispatch, church);
+        church && getChurchDetails(dispatch, church);
+        getChurches(dispatch)
     }, [dispatch, church]);
 
     return (

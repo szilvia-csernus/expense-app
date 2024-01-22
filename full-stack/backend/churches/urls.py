@@ -1,6 +1,7 @@
 from django.urls import path
-from .views import ChurchesAndCostPurposes
+from .views import ChurchDetails, ChurchList
 
 urlpatterns = [
-    path('purposes/', ChurchesAndCostPurposes.as_view()),
+    path('details/', ChurchDetails.as_view()),
+    path('names/', ChurchList.as_view()),
 ]

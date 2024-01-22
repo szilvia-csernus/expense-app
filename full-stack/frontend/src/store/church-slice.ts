@@ -13,9 +13,10 @@ const initialChurch = getInitialChurch();
 const initialStatus =
 	initialChurch === null || initialChurch === '';
 
-const selectChurchSlice = createSlice({
-	name: 'selectChurch',
+const churchSlice = createSlice({
+	name: 'church',
 	initialState: {
+		churches: [] as string[],
 		status: initialStatus,
 		church: initialChurch,
 		fetchingInProcess: false,
@@ -44,11 +45,14 @@ const selectChurchSlice = createSlice({
 		setChurchDetails(state, action) {
 			state.logo = action.payload['logo'];
 			state.costPurposes = action.payload['cost_purposes']
+		},
+		setChurches(state, action) {
+			state.churches = action.payload
 		}
 	},
 });
 
 
-export const selectChurchActions = selectChurchSlice.actions;
+export const churchActions = churchSlice.actions;
 
-export default selectChurchSlice;
+export default churchSlice;

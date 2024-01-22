@@ -7,7 +7,7 @@ import FileUploader from './FileUploader';
 import { send } from '../store/form-action-creators';
 import { useAppSelector } from '../store/index';
 import { costFormActions } from '../store/cost-form-slice';
-import { selectChurchActions } from '../store/select-church-slice';
+import { churchActions } from '../store/church-slice';
 import ChurchLogo from './ChurchLogo';
 import { useAppDispatch } from '../store/index'
 
@@ -28,13 +28,13 @@ const CostForm = () => {
 	const [fileList, setFileList] = useState<File[] | []>([]);
 	const [totalFileSize, setTotalFileSize] = useState<number>(0);
 
-	const purposes = useAppSelector(state => state.selectChurch.costPurposes)
-	const churchValue = useAppSelector(state => state.selectChurch.church);
+	const purposes = useAppSelector(state => state.church.costPurposes)
+	const churchValue = useAppSelector(state => state.church.church);
 	
 	const dispatch = useAppDispatch();
 
 	const handleSelectChurch = () => {
-		dispatch(selectChurchActions.open())
+		dispatch(churchActions.open())
 		purposeReset();
 	}
 
