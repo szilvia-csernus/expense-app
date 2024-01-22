@@ -4,11 +4,10 @@ import { useState, useEffect } from "react";
 import useInput, { type ValidateType } from '../Hooks/use-input';
 import { SubmitButton } from './Buttons';
 import FileUploader from './FileUploader';
-import { send } from '../store/form-action-creator';
+import { send } from '../store/form-action-creators';
 import { useAppSelector } from '../store/index';
 import { costFormActions } from '../store/cost-form-slice';
 import { selectChurchActions } from '../store/select-church-slice';
-import purposes from '../data/purposes.json';
 import ChurchLogo from './ChurchLogo';
 import { useAppDispatch } from '../store/index'
 
@@ -23,12 +22,13 @@ const CostForm = () => {
 	const [formValid, setFormValid] = useState(false);
 	// file uploads are not allowed to be stored in redux store
 	// https://redux-toolkit.js.org/usage/usage-guide#working-with-non-serializable-data
-	// however, the solution above did not work for me, so I am using useState instead
+	// however, the solution above did not work for me, so I am using useState here
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
 	const [fileError, setFileError] = useState<string | boolean>(false);
 	const [fileList, setFileList] = useState<File[] | []>([]);
 	const [totalFileSize, setTotalFileSize] = useState<number>(0);
 
+	const purposes = useAppSelector(state => state.selectChurch.costPurposes)
 	const churchValue = useAppSelector(state => state.selectChurch.church);
 	
 	const dispatch = useAppDispatch();
@@ -224,7 +224,6 @@ const CostForm = () => {
 
 	return (
 		<section className={classes.content}>
-			
 			<ChurchLogo />
 			<br />
 			<div className={classes.body}>
@@ -315,18 +314,14 @@ const CostForm = () => {
 							<option value="" disabled>
 								Select a purpose
 							</option>
-							{churchValue === 'Delft' &&
-								purposes['Delft'].map((purpose, idx) => (
-									<option key={purpose + idx} value={purpose}>
-										{purpose}
-									</option>
-								))}
-							{churchValue === 'Rotterdam' &&
-								purposes['Rotterdam'].map((purpose, idx) => (
-									<option key={purpose + idx} value={purpose}>
-										{purpose}
-									</option>
-								))}
+							{purposes.map((purpose) => (
+								<option
+									key={purpose.name + purpose.cost_code}
+									value={`${purpose.name} (${purpose.cost_code})`}
+								>
+									{`${purpose.name} (${purpose.cost_code})`}
+								</option>
+							))}
 						</select>
 
 						<div
@@ -418,9 +413,9 @@ const CostForm = () => {
 						{/* Receipts  */}
 						<span className={classes.labelText}>Receipt(s) *</span>
 						<p className={classes.labelSubText}>
-							Please take/upload a clear picture or PDF of the receipt of the expense
-							made. Accepted file types: png, jpg, jpeg, pdf. Max file size:
-							5MB.
+							Please take/upload a clear picture or PDF of the receipt of the
+							expense made. Accepted file types: png, jpg, jpeg, pdf. Max file
+							size: 5MB.
 						</p>
 
 						<FileUploader
@@ -491,7 +486,7 @@ const CostForm = () => {
 							Invalid name.
 						</div>
 					</fieldset>
-					
+
 					<br />
 					<div className={classes.footer}>
 						<SubmitButton type="submit">Submit</SubmitButton>

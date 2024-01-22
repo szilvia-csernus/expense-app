@@ -18,6 +18,9 @@ const selectChurchSlice = createSlice({
 	initialState: {
 		status: initialStatus,
 		church: initialChurch,
+		fetchingInProcess: false,
+		logo: '',
+		costPurposes: [] as {name: string, cost_code: number}[]
 	},
 	reducers: {
         open(state) {
@@ -35,8 +38,16 @@ const selectChurchSlice = createSlice({
 			state.church = '';
             localStorage.removeItem('church');
 		},
+		setFetchingInProcess(state, action) {
+			state.fetchingInProcess = action.payload
+		},
+		setChurchDetails(state, action) {
+			state.logo = action.payload['logo'];
+			state.costPurposes = action.payload['cost_purposes']
+		}
 	},
 });
+
 
 export const selectChurchActions = selectChurchSlice.actions;
 
