@@ -10,7 +10,7 @@ services:
     ports:
       - "5432:5432"
     env_file:
-      - ./full-stack/backend/.env.prod
+      - ./full-stack/backend/.env
     volumes:
       - db-data:/var/lib/postgresql/data
 
@@ -18,13 +18,11 @@ services:
     container_name: backend
     build:
       context: .
-      dockerfile: ./full-stack/backend/Dockerfile.prod
+      dockerfile: ./full-stack/backend/Dockerfile
     ports:
       - "8000:8000"
-    environment:
-      - DJANGO_ENV=production
     env_file:
-      - ./full-stack/backend/.env.prod
+      - ./full-stack/backend/.env
     volumes:
       - static_volume:/static/
     depends_on:
@@ -34,11 +32,12 @@ services:
     container_name: frontend
     build:
       context: ./full-stack/frontend
-      dockerfile: Dockerfile.prod
+      dockerfile: Dockerfile
+      args:
+        - VITE_DJANGO_HOST=http://localhost
+        - VITE_DJANGO_PORT=8000
     volumes:
       - frontend:/app/dist
-    env_file:
-      - ./full-stack/frontend/.env.prod
   
   nginx:
     container_name: nginx
