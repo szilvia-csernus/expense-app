@@ -1,11 +1,15 @@
 import { Dispatch } from '@reduxjs/toolkit';
 import { churchActions } from './church-slice';
 
+const djangoHost = import.meta.env.VITE_DJANGO_HOST;
+const djangoPort = import.meta.env.VITE_DJANGO_PORT;
+const host_url = `${djangoHost}:${djangoPort}`;
+
 export const getChurchDetails = (dispatch: Dispatch, church: string) => {
 	dispatch(churchActions.setFetchingInProcess(true));
 	const fetchData = async () => {
 		const response = await fetch(
-			`http://localhost:8000/churches/details/?church=${church}`
+			`${host_url}/churches/details/?church=${church}`
 		);
 		const data = await response.json();
 		const { logo, cost_purposes } = data;
@@ -22,9 +26,7 @@ export const getChurchDetails = (dispatch: Dispatch, church: string) => {
 export const getChurches = (dispatch: Dispatch) => {
 	dispatch(churchActions.setFetchingInProcess(true));
 	const fetchData = async () => {
-		const response = await fetch(
-			'http://localhost:8000/churches/names/'
-		);
+		const response = await fetch(`${host_url}/churches/names/`);
 		const data = await response.json();
 		const churchList = data.map((church: { name: string }) => church.name);
 		dispatch(churchActions.setChurches(churchList));
