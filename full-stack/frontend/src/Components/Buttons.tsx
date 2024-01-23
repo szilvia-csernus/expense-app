@@ -1,37 +1,67 @@
 import classes from './Buttons.module.css';
 
-export const SubmitButton = (props) => {
-	const classNames = `${classes.button} ${classes.primaryButton}`;
+interface ButtonProps {
+	onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+	children: React.ReactNode;
+}
+
+type GeneralButtonProps = ButtonProps & {
+	type: 'button' | 'submit' | 'reset';
+	className: string;
+};
+
+export const GeneralButton = (props: GeneralButtonProps) => {
+	const classNames = `${classes.button} ${props.className}`;
 	return (
-		<button type="submit" className={classNames} onClick={props.onClick}>
+		<button type={props.type} className={classNames} onClick={props.onClick}>
 			{props.children}
 		</button>
 	);
 };
 
-export const DeleteButton = (props) => {
-	const classNames = `${classes.button} ${classes.deleteButton}`;
+export const SecondaryButton = (props: ButtonProps) => {
 	return (
-		<button type="button" className={classNames} onClick={props.onClick}>
+		<GeneralButton
+			type="button"
+			className={classes.secondaryButton}
+			onClick={props.onClick}
+		>
 			{props.children}
-		</button>
+		</GeneralButton>
 	);
 };
 
-export const PrimaryButton = (props) => {
-	const classNames = `${classes.button} ${classes.primaryButton}`;
+export const SubmitButton = (props: ButtonProps) => {
 	return (
-		<button type="button" className={classNames} onClick={props.onClick}>
+		<GeneralButton
+			type="submit"
+			className={classes.primaryButton}
+		>
 			{props.children}
-		</button>
+		</GeneralButton>
 	);
-}
+};
 
-export const SecondaryButton = (props) => {
-	const classNames = `${classes.button} ${classes.secondaryButton}`;
+export const DeleteButton = (props: ButtonProps) => {
 	return (
-		<button type="button" className={classNames} onClick={props.onClick}>
+		<GeneralButton
+			type="button"
+			className={classes.deleteButton}
+			onClick={props.onClick}
+		>
 			{props.children}
-		</button>
+		</GeneralButton>
 	);
-}
+};
+
+export const PrimaryButton = (props: ButtonProps) => {
+	return (
+		<GeneralButton
+			type="button"
+			className={classes.primaryButton}
+			onClick={props.onClick}
+		>
+			{props.children}
+		</GeneralButton>
+	);
+};

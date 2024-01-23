@@ -489,7 +489,7 @@ const CostForm = () => {
 
 					<br />
 					<div className={classes.footer}>
-						<SubmitButton type="submit">Submit</SubmitButton>
+						<SubmitButton>Submit</SubmitButton>
 					</div>
 				</form>
 			</div>
