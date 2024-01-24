@@ -67,3 +67,91 @@ Dockerfiles and docker-compose files are provided to run this project both in de
 * To start up the container again, run `docker-compose -p prod_expense_app -f docker-compose.prod.yml up`.
 * To destroy the container: `docker-compose -p prod_expense_app -f docker-compose.prod.yml down`
 * To destroy all the static files and database, run `docker volume prune`.
+
+
+# Deployment
+
+## Amazon ECR (Elastic Container Registry)
+
+Deployment of the images:
+
+0. Prerequisites: Amazon AWS and Docker accounts, install the AWS CLI.
+1. Log in to your Amazon AWS account with an admin account. On the IAM board, create an Access Key for CLI access.
+2. In VS Code, run `aws configure`.
+3. For the Access Key Id and Secret Access Key, enter the credentials you've created earlier. For default region name, put `eu-west-2` and for output format, put `json`.
+4. Run the docker-compose command detailed earlier.
+5. List the images you created: `docker ls`. There should be 4 of them:
+    * expense-app-backend
+    * expense-app-frontend
+    * expense-app-nginx
+    * postgres
+6. Connect to the AWS ECR service with the command: `aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin <your-amazon-account-number>.dkr.ecr.eu-west-2.amazonaws.com`.
+7. Create an ECR repository for each image. Either on the AWS ECR Console or on the command line with: 
+    `aws ecr create-repository --repository-name expense-app-backend --region eu-west-2`
+    `aws ecr create-repository --repository-name expense-app-frontend --region eu-west-2`
+    `aws ecr create-repository --repository-name expense-app-nginx --region eu-west-2`
+    `aws ecr create-repository --repository-name postgres --region eu-west-2`
+8. Tag all of your docker images with the corresponding AWS ECR repos:
+    `docker tag expense-app-backend:latest <the-repositoryUri-you-got-back-in-the-previous-step>`
+    Repeat it with the other 3.
+9. Push the images one-by-one up to the AWS ECR repos:
+    `docker push <the-repositoryUri>`
+
+
+## Amazon AWS Elastic Container Service (ECS)
+
+1. Navigate to the ECS Dashboard and create a Cluster. Use the pre-selected `AWS Fargate (serverless)` option.
+2. Click on `Task definitions` and on `Create new task definition`.
+    * Create a Task Definition for the db service:
+
+        Name: db
+        Network Mode: awsvpc
+        Task size: Define according to your needs. For example, 0.5GB memory and 0.25 vCPU.
+        Task Role: None (unless your container needs to access other AWS resources)
+        Task execution role: ecsTaskExecutionRole (the default one)
+        Container Definitions: Add a new container
+            Image: postgres:15-alpine
+            Port mappings: Host port 5432 TCP protocol, Port name 5432, App protocol: None.
+            Environment: 
+                POSTGRES_DB: your-db-name,
+                POSTGRES_USER: your-db-username,
+                POSTGRES_PASSWORD: your-db-password
+
+            Storage / Volume-1: This is where you specify the path inside the container where you want to mount the volume.
+            Volume name: db-data, Configure at task definition creation, volume type: Bind mount
+            Add mount point: postgres:alpine-15, db-data, container path: /var/lib/postgresql/data
+
+
+    * Create a Task Definition for the backend service:
+
+        Network Mode: awsvpc
+        Task size: Define according to your needs. For example, 1GB memory and 0.5 vCPU.
+        Task Role: None (unless your container needs to access other AWS resources)
+        Task execution role: ecsTaskExecutionRole (the default one)
+        Container Definitions: Add a new container
+            Image: The ECR URI of your backend image
+            Port mappings: Host port 8000, container port 8000
+            Environment: Define the environment variables from your .env file
+        Storage / Volume-1: volume name: static_volume
+        Add mount point: Source volume static_volume, container path /static/
+
+    * Create a Task Definition for the frontend service:
+
+        Task Role: None (unless your container needs to access other AWS resources)
+        Network Mode: awsvpc
+        Task size: Define according to your needs. For example, 1GB memory and 0.5 vCPU.
+        Task execution role: ecsTaskExecutionRole (the default one)
+        Container Definitions: Add a new container
+        Image: The ECR URI of your frontend image
+        Environment: VITE_DJANGO_HOST=http://localhost, VITE_DJANGO_PORT=8000
+        Mount points: Source volume frontend, container path /app/dist
+
+    * Create a Task Definition for the nginx service:
+
+        Task Role: None (unless your container needs to access other AWS resources)
+        Network Mode: awsvpc
+        Task size: Define according to your needs. For example, 0.5GB memory and 0.25 vCPU.
+        Container Definitions: Add a new container
+        Image: The ECR URI of your nginx image
+        Port mappings: Host port 80, container port 80
+        Mount points: Source volume static_volume, container path /static/, and source volume frontend, container path /var/www/frontend
