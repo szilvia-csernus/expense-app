@@ -1,16 +1,22 @@
 .content {
     display: block;
     margin: auto;
+    min-height: 70vh;
     padding: 3rem 1rem 5rem 1rem;
     background-color: var(--main-bg-color);
     margin: 1rem;
     border: 1px solid var(--input-bg-color);
-    border-radius: .2rem;;
+    border-radius: .2rem;
 }
 
 .content::-webkit-scrollbar{
     display: none;
-  }
+}
+
+.formBody {
+    opacity: 0;
+    animation: appear .6s linear forwards;
+}
 
 .labelText {
     display: block;
@@ -125,6 +131,8 @@ is inconsistent with the React-controlled component. */
     background-color: var(--main-bg-color);
     border-radius: .5rem;
     border: 1px solid var(--input-bg-color);
+    opacity: 0;
+    animation: appear .6s linear forwards;
 }
 
 .linkText {
@@ -136,4 +144,14 @@ is inconsistent with the React-controlled component. */
     height: 60px;
     width: auto;
     display: block;
+}
+
+@keyframes appear {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }

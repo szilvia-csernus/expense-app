@@ -4,12 +4,13 @@ import Footer from '../Components/Footer';
 import { Container } from '../Components/Container';
 import ThankYouMessage from '../Components/ThankYouMessage';
 import ErrorMessage from '../Components/ErrorMessage';
-import Loader from '../Components/Loader';
 import SelectChurch from '../Components/SelectChurch';
+import PageLoader from '../Components/PageLoader';
 
 import { useAppDispatch, useAppSelector } from '../store';
 import { useEffect } from 'react';
 import { getChurchDetails, getChurches } from '../store/church-action-creators';
+
 
 function Home() {
     const selectChurchStatus = useAppSelector(state => state.church.status)
@@ -28,7 +29,7 @@ function Home() {
         <Container>
             <Header />
             {selectChurchStatus && <SelectChurch />}
-            {sending && <Loader />}
+            {sending && <PageLoader />}
             {thankYouMessage && <ThankYouMessage/>}
             {errorMessage && <ErrorMessage/>}
             <CostForm />

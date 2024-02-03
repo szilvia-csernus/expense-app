@@ -2,6 +2,18 @@
     display: block;
     margin: auto;
     text-align: center;
+    opacity: 0;
+    animation: appear 1s linear .5s forwards;
+}
+
+@keyframes appear {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 /* Loader styling from https://loading.io/css/ */

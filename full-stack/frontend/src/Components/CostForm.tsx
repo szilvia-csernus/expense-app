@@ -1,6 +1,6 @@
 import classes from './Form.module.css';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect } from 'react';
 import useInput, { type ValidateType } from '../Hooks/use-input';
 import { SubmitButton } from './Buttons';
 import FileUploader from './FileUploader';
@@ -9,14 +9,13 @@ import { useAppSelector } from '../store/index';
 import { costFormActions } from '../store/cost-form-slice';
 import { churchActions } from '../store/church-slice';
 import ChurchLogo from './ChurchLogo';
-import { useAppDispatch } from '../store/index'
-
+import { useAppDispatch } from '../store/index';
+import Loader from './Loader';
 
 const isNotEmpty: ValidateType = (value) => value.trim() !== '';
 const isEmail: ValidateType = (value) =>
 	/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/.test(value);
 const noValidate = () => true;
-
 
 const CostForm = () => {
 	const [formValid, setFormValid] = useState(false);
@@ -28,15 +27,18 @@ const CostForm = () => {
 	const [fileList, setFileList] = useState<File[] | []>([]);
 	const [totalFileSize, setTotalFileSize] = useState<number>(0);
 
-	const purposes = useAppSelector(state => state.church.costPurposes)
-	const churchValue = useAppSelector(state => state.church.church);
-	
+	const purposes = useAppSelector((state) => state.church.costPurposes);
+	const churchValue = useAppSelector((state) => state.church.church);
+	const fetchingInProcess = useAppSelector(
+		(state) => state.church.fetchingDetailsInProcess
+	);
+
 	const dispatch = useAppDispatch();
 
 	const handleSelectChurch = () => {
-		dispatch(churchActions.open())
+		dispatch(churchActions.open());
 		purposeReset();
-	}
+	};
 
 	const {
 		value: nameValue,
@@ -182,21 +184,21 @@ const CostForm = () => {
 				setTotalFileSize(0);
 				ibanReset();
 				accountNameReset();
-			}
+			};
 
 			const resetFileUploader = () => {
 				setSelectedFile(null);
 				setFileList([]);
 				setFileError(false);
 				setTotalFileSize(0);
-			}
+			};
 
 			send(dispatch, formData, resetForm, resetFileUploader);
 
 			dispatch(costFormActions.resetSubmitting());
 		}
 	};
-	
+
 	const nameClassNames = `${classes.formInput} ${
 		nameHasError && classes.formInputInvalid
 	}`;
@@ -224,275 +226,298 @@ const CostForm = () => {
 
 	return (
 		<section className={classes.content}>
-			<ChurchLogo />
-			<br />
-			<div className={classes.body}>
-				<form className={classes.form} onSubmit={submitHandler}>
-					{/* PERSONAL INFORMATION */}
-					<fieldset>
-						<h2>Personal Information</h2>
+			{fetchingInProcess && <Loader />}
 
-						{/* Name  */}
-						<label htmlFor="name" className={classes.labelText}>
-							Name *
-						</label>
-						<p className={classes.labelSubText}>
-							Please give your name here in case we need to contact you.
-						</p>
-						<input
-							id="name"
-							type="text"
-							name="name"
-							className={nameClassNames}
-							onChange={nameChangeHandler}
-							onBlur={nameBlurHandler}
-							value={nameValue}
-							autoComplete="name"
-						/>
-						<div
-							className={
-								nameHasError ? classes.feedbackInvalid : classes.feedbackValid
-							}
-						>
-							Please provide your name.
-						</div>
-
-						{/* Email  */}
-						<label htmlFor="email" className={classes.labelText}>
-							Email address *
-						</label>
-						<p className={classes.labelSubText}>
-							Your email address where we can reach you.
-						</p>
-						<input
-							id="email"
-							type="email"
-							name="email"
-							className={emailClassNames}
-							onChange={emailChangeHandler}
-							onBlur={emailBlurHandler}
-							value={emailValue}
-							autoComplete="email"
-						/>
-						<div
-							className={
-								emailHasError ? classes.feedbackInvalid : classes.feedbackValid
-							}
-						>
-							Please provide your email address.
-						</div>
-					</fieldset>
-
-					{/* EXPENSES */}
-					<fieldset>
-						<h2>Expenses</h2>
-
-						{/* Selected Church  */}
-						<p className={classes.labelSubText}>
-							Your Selected Church is <strong>{churchValue}</strong>. Is this
-							not your church?{' '}
-							<a onClick={handleSelectChurch} className={classes.linkText}>
-								Change it here.
-							</a>
-						</p>
-
-						{/* Purpose  */}
-						<label htmlFor="purpose" className={classes.labelText}>
-							Purpose *
-						</label>
-						<p className={classes.labelSubText}>
-							Please select a purpose for the expense.
-						</p>
-						<select
-							id="purpose"
-							name="purpose"
-							className={purposeClassNames}
-							onChange={purposeChangeHandler}
-							onBlur={purposeBlurHandler}
-							value={purposeValue}
-						>
-							<option value="" disabled>
-								Select a purpose
-							</option>
-							{purposes.map((purpose) => (
-								<option
-									key={purpose.name + purpose.cost_code}
-									value={`${purpose.name} (${purpose.cost_code})`}
-								>
-									{`${purpose.name} (${purpose.cost_code})`}
-								</option>
-							))}
-						</select>
-
-						<div
-							className={
-								purposeHasError
-									? classes.feedbackInvalid
-									: classes.feedbackValid
-							}
-						>
-							Please select a purpose.
-						</div>
-
-						{/* Date  */}
-						<label htmlFor="date" className={classes.labelText}>
-							Date of expense (on receipt) *
-						</label>
-						<p className={classes.labelSubText}>
-							If you have many receipts, then use the date from the latest. If
-							they relate to multiple years, then it is best to group them by
-							years into separate submissions to help our bookkeeping.
-						</p>
-						<input
-							id="date"
-							type="date"
-							name="date"
-							className={dateClassNames}
-							onChange={dateChangeHandler}
-							onBlur={dateBlurHandler}
-							value={dateValue}
-						/>
-						<div
-							className={
-								dateHasError ? classes.feedbackInvalid : classes.feedbackValid
-							}
-						>
-							Please select a date.
-						</div>
-
-						{/* Description  */}
-						<label htmlFor="description" className={classes.labelText}>
-							Description *
-						</label>
-						<p className={classes.labelSubText}>
-							Short description for the expense.
-						</p>
-						<input
-							id="description"
-							type="text"
-							name="description"
-							className={descriptionClassNames}
-							onChange={descriptionChangeHandler}
-							onBlur={descriptionBlurHandler}
-							value={descriptionValue}
-						/>
-						<div
-							className={
-								descriptionHasError
-									? classes.feedbackInvalid
-									: classes.feedbackValid
-							}
-						>
-							Please provide a short description.
-						</div>
-
-						{/* Total  */}
-						<label htmlFor="total" className={classes.labelText}>
-							Total *
-						</label>
-						<p className={classes.labelSubText}>
-							The total amount in EUR to be reimbursed.
-						</p>
-						<input
-							id="total"
-							type="total"
-							name="total"
-							className={totalClassNames}
-							onChange={totalChangeHandler}
-							onBlur={totalBlurHandler}
-							value={totalValue}
-						/>
-						<div
-							className={
-								totalHasError ? classes.feedbackInvalid : classes.feedbackValid
-							}
-						>
-							Invalid amount.
-						</div>
-
-						{/* Receipts  */}
-						<span className={classes.labelText}>Receipt(s) *</span>
-						<p className={classes.labelSubText}>
-							Please take/upload a clear picture or PDF of the receipt of the
-							expense made. Accepted file types: png, jpg, jpeg, pdf. Max file
-							size: 5MB.
-						</p>
-
-						<FileUploader
-							selectedFile={selectedFile}
-							setSelectedFile={setSelectedFile}
-							fileError={fileError}
-							setFileError={setFileError}
-							fileList={fileList}
-							setFileList={setFileList}
-							totalFileSize={totalFileSize}
-							setTotalFileSize={setTotalFileSize}
-						/>
-					</fieldset>
-
-					{/* REIMBURSEMENT DETAILS  */}
-					<fieldset>
-						<h2>Reimbursement Details</h2>
-						{/* Bank Account  */}
-						<label htmlFor="iban" className={classes.labelText}>
-							Bank Account *
-						</label>
-						<p className={classes.labelSubText}>
-							The IBAN account number, where the reimbursement is to be
-							transferred.
-						</p>
-						<input
-							id="iban"
-							type="text"
-							name="iban"
-							className={ibanClassNames}
-							onChange={ibanChangeHandler}
-							onBlur={ibanBlurHandler}
-							value={ibanValue}
-							autoComplete="on"
-						/>
-						<div
-							className={
-								ibanHasError ? classes.feedbackInvalid : classes.feedbackValid
-							}
-						>
-							Please provide your bank account number.
-						</div>
-
-						{/* Name of Bank Account Holder  */}
-						<label htmlFor="accountName" className={classes.labelText}>
-							Name of Bank Account Holder
-						</label>
-						<p className={classes.labelSubText}>
-							Please enter the name of the account holder if it is different
-							from the name entered at the top of this form.
-						</p>
-						<input
-							id="accountName"
-							type="accountName"
-							name="accountName"
-							className={accountNameClassNames}
-							onChange={accountNameChangeHandler}
-							onBlur={accountNameBlurHandler}
-							value={accountNameValue}
-						/>
-						<div
-							className={
-								accountNameHasError
-									? classes.feedbackInvalid
-									: classes.feedbackValid
-							}
-						>
-							Invalid name.
-						</div>
-					</fieldset>
-
+			{!fetchingInProcess && (
+				<>
+					<ChurchLogo />
 					<br />
-					<div className={classes.footer}>
-						<SubmitButton>Submit</SubmitButton>
+					<div className={classes.formBody}>
+						<form className={classes.form} onSubmit={submitHandler}>
+							{/* PERSONAL INFORMATION */}
+							<fieldset>
+								<h2>Personal Information</h2>
+
+								{/* Name  */}
+								<label htmlFor="name" className={classes.labelText}>
+									Name *
+								</label>
+								<p className={classes.labelSubText}>
+									Please give your name here in case we need to contact you.
+								</p>
+								<input
+									id="name"
+									type="text"
+									name="name"
+									className={nameClassNames}
+									onChange={nameChangeHandler}
+									onBlur={nameBlurHandler}
+									value={nameValue}
+									autoComplete="name"
+								/>
+								<div
+									className={
+										nameHasError
+											? classes.feedbackInvalid
+											: classes.feedbackValid
+									}
+								>
+									Please provide your name.
+								</div>
+
+								{/* Email  */}
+								<label htmlFor="email" className={classes.labelText}>
+									Email address *
+								</label>
+								<p className={classes.labelSubText}>
+									Your email address where we can reach you.
+								</p>
+								<input
+									id="email"
+									type="email"
+									name="email"
+									className={emailClassNames}
+									onChange={emailChangeHandler}
+									onBlur={emailBlurHandler}
+									value={emailValue}
+									autoComplete="email"
+								/>
+								<div
+									className={
+										emailHasError
+											? classes.feedbackInvalid
+											: classes.feedbackValid
+									}
+								>
+									Please provide your email address.
+								</div>
+							</fieldset>
+
+							{/* EXPENSES */}
+							<fieldset>
+								<h2>Expenses</h2>
+
+								{/* Selected Church  */}
+								<p className={classes.labelSubText}>
+									Your Selected Church is <strong>{churchValue}</strong>. Is
+									this not your church?{' '}
+									<a onClick={handleSelectChurch} className={classes.linkText}>
+										Change it here.
+									</a>
+								</p>
+
+								{/* Purpose  */}
+								<label htmlFor="purpose" className={classes.labelText}>
+									Purpose *
+								</label>
+								<p className={classes.labelSubText}>
+									Please select a purpose for the expense.
+								</p>
+								<select
+									id="purpose"
+									name="purpose"
+									className={purposeClassNames}
+									onChange={purposeChangeHandler}
+									onBlur={purposeBlurHandler}
+									value={purposeValue}
+								>
+									<option value="" disabled>
+										Select a purpose
+									</option>
+									{purposes.map((purpose) =>
+										purpose.cost_code ? (
+											<option
+												key={`${purpose.name} ${purpose.cost_code}`}
+												value={`${purpose.name} (${purpose.cost_code})`}
+											>
+												{`${purpose.name} (${purpose.cost_code})`}
+											</option>
+										) : (
+											<option key={purpose.name} value={purpose.name}>
+												{purpose.name}
+											</option>
+										)
+									)}
+								</select>
+
+								<div
+									className={
+										purposeHasError
+											? classes.feedbackInvalid
+											: classes.feedbackValid
+									}
+								>
+									Please select a purpose.
+								</div>
+
+								{/* Date  */}
+								<label htmlFor="date" className={classes.labelText}>
+									Date of expense (on receipt) *
+								</label>
+								<p className={classes.labelSubText}>
+									If you have many receipts, then use the date from the latest.
+									If they relate to multiple years, then it is best to group
+									them by years into separate submissions to help our
+									bookkeeping.
+								</p>
+								<input
+									id="date"
+									type="date"
+									name="date"
+									className={dateClassNames}
+									onChange={dateChangeHandler}
+									onBlur={dateBlurHandler}
+									value={dateValue}
+								/>
+								<div
+									className={
+										dateHasError
+											? classes.feedbackInvalid
+											: classes.feedbackValid
+									}
+								>
+									Please select a date.
+								</div>
+
+								{/* Description  */}
+								<label htmlFor="description" className={classes.labelText}>
+									Description *
+								</label>
+								<p className={classes.labelSubText}>
+									Short description for the expense.
+								</p>
+								<input
+									id="description"
+									type="text"
+									name="description"
+									className={descriptionClassNames}
+									onChange={descriptionChangeHandler}
+									onBlur={descriptionBlurHandler}
+									value={descriptionValue}
+								/>
+								<div
+									className={
+										descriptionHasError
+											? classes.feedbackInvalid
+											: classes.feedbackValid
+									}
+								>
+									Please provide a short description.
+								</div>
+
+								{/* Total  */}
+								<label htmlFor="total" className={classes.labelText}>
+									Total *
+								</label>
+								<p className={classes.labelSubText}>
+									The total amount in EUR to be reimbursed.
+								</p>
+								<input
+									id="total"
+									type="total"
+									name="total"
+									className={totalClassNames}
+									onChange={totalChangeHandler}
+									onBlur={totalBlurHandler}
+									value={totalValue}
+								/>
+								<div
+									className={
+										totalHasError
+											? classes.feedbackInvalid
+											: classes.feedbackValid
+									}
+								>
+									Invalid amount.
+								</div>
+
+								{/* Receipts  */}
+								<span className={classes.labelText}>Receipt(s) *</span>
+								<p className={classes.labelSubText}>
+									Please take/upload a clear picture or PDF of the receipt of
+									the expense made. Accepted file types: png, jpg, jpeg, pdf.
+									Max file size: 5MB.
+								</p>
+
+								<FileUploader
+									selectedFile={selectedFile}
+									setSelectedFile={setSelectedFile}
+									fileError={fileError}
+									setFileError={setFileError}
+									fileList={fileList}
+									setFileList={setFileList}
+									totalFileSize={totalFileSize}
+									setTotalFileSize={setTotalFileSize}
+								/>
+							</fieldset>
+
+							{/* REIMBURSEMENT DETAILS  */}
+							<fieldset>
+								<h2>Reimbursement Details</h2>
+								{/* Bank Account  */}
+								<label htmlFor="iban" className={classes.labelText}>
+									Bank Account *
+								</label>
+								<p className={classes.labelSubText}>
+									The IBAN account number, where the reimbursement is to be
+									transferred.
+								</p>
+								<input
+									id="iban"
+									type="text"
+									name="iban"
+									className={ibanClassNames}
+									onChange={ibanChangeHandler}
+									onBlur={ibanBlurHandler}
+									value={ibanValue}
+									autoComplete="on"
+								/>
+								<div
+									className={
+										ibanHasError
+											? classes.feedbackInvalid
+											: classes.feedbackValid
+									}
+								>
+									Please provide your bank account number.
+								</div>
+
+								{/* Name of Bank Account Holder  */}
+								<label htmlFor="accountName" className={classes.labelText}>
+									Name of Bank Account Holder
+								</label>
+								<p className={classes.labelSubText}>
+									Please enter the name of the account holder if it is different
+									from the name entered at the top of this form.
+								</p>
+								<input
+									id="accountName"
+									type="accountName"
+									name="accountName"
+									className={accountNameClassNames}
+									onChange={accountNameChangeHandler}
+									onBlur={accountNameBlurHandler}
+									value={accountNameValue}
+								/>
+								<div
+									className={
+										accountNameHasError
+											? classes.feedbackInvalid
+											: classes.feedbackValid
+									}
+								>
+									Invalid name.
+								</div>
+							</fieldset>
+
+							<br />
+							<div className={classes.footer}>
+								<SubmitButton>Submit</SubmitButton>
+							</div>
+						</form>
 					</div>
-				</form>
-			</div>
+				</>
+			)}
 		</section>
 	);
 };
