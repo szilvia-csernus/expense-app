@@ -6,3 +6,4 @@
 .env.dev
 .env.prod
 **/migrations
+*.sqlite3
