@@ -1,6 +1,7 @@
 from pathlib import Path
 from dotenv import load_dotenv
 import os
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,15 +21,22 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1']
+# This is a list of strings representing the host/domain names that Django
+# can serve. This is a security measure to prevent HTTP Host header attacks.
+ALLOWED_HOSTS = [os.getenv("BACKEND_HOST")]
 
-# Allow CORS for the frontend.
+# This is a list of origins that are authorized to make cross-origin requests.
+# Cross-Origin Resource Sharing (CORS) is a mechanism that allows many
+# resources (e.g., fonts, JavaScript, etc.) on a web page to be requested from
+# another domain outside the domain from which the resource originated.
 CORS_ALLOWED_ORIGINS = [
-    os.getenv("FRONTEND_URL_DEV", ""),
-    os.getenv("FRONTEND_URL", "")
+    os.getenv("FRONTEND_URL")
 ]
 
-CORS_ALLOWED_CREDENTIALS = True
+# This setting was needed because the admin panel is proxy_routed to the
+# frontend, and sending requests from here back to the backend are seen
+# as cross-site-requests.
+CSRF_TRUSTED_ORIGINS = [os.getenv("FRONTEND_URL")]
 
 
 # Application definition
@@ -39,8 +47,8 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'cloudinary_storage',  # for cloudinary
     'django.contrib.staticfiles',
+    'cloudinary_storage',  # for cloudinary
     'cloudinary',  # for cloudinary
     'rest_framework',
     'corsheaders',  # new
@@ -98,15 +106,20 @@ if 'DEVELOPMENT' in os.environ:
 
 else:
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.getenv("POSTGRES_DB"),
-            'USER': os.getenv("POSTGRES_USER"),
-            'PASSWORD': os.getenv("POSTGRES_PASSWORD"),
-            'HOST': 'db',  # set in docker-compose.prod.yml
-            'PORT': '5432'  # default postgres port
-        }
+        'default': dj_database_url.parse(os.environ.get('DATABASE_URL', ''))
     }
+
+    # This config was used for Docker container-based postgres database.
+    # DATABASES = {
+    #     'default': {
+    #         'ENGINE': 'django.db.backends.postgresql',
+    #         'NAME': os.getenv("POSTGRES_DB"),
+    #         'USER': os.getenv("POSTGRES_USER"),
+    #         'PASSWORD': os.getenv("POSTGRES_PASSWORD"),
+    #         'HOST': os.getenv("POSTGRES_HOST"),
+    #         'PORT': '5432'  # default postgres port
+    #     }
+    # }
 
 
 # Password validation
@@ -147,9 +160,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
+STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'), )
 
-STATIC_ROOT = BASE_DIR / 'staticfiles'  # new
-WHITENOISE_STATIC_ROOT = BASE_DIR / 'staticfiles'  # new
+STATIC_ROOT = '/staticfiles/'  # new
+# WHITENOISE_STATIC_ROOT = BASE_DIR / 'staticfiles'  # new
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
@@ -165,6 +179,10 @@ CLOUDINARY_STORAGE = {
 }
 
 MEDIA_URL = '/media/'
+
+# This is only for the admin-uploaded files. (The logo images of the churches.)
+# The user-uploaded images are not stored anywhere in the backend, they are
+# being manipulated by a backend process and then sent as an email attachment.
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 if 'DJANGO_ENV' == 'development':
