@@ -18,7 +18,7 @@ services:
     container_name: nginx
     build:
       context: ./full-stack/frontend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.local
     volumes:
       - static_volume:/staticfiles/
     ports:
@@ -28,3 +28,4 @@ services:
 
 volumes:
   static_volume:
+  frontend:
