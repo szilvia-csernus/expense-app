@@ -1,8 +1,11 @@
 from django.contrib import admin
 from django.urls import path
 from django.urls.conf import include
+from .views import home
+
 
 urlpatterns = [
+    path('', home),
     path('admin/', admin.site.urls),
     path('profiles/', include('profiles.urls')),
     path('claims/', include('claims.urls')),
