@@ -19,35 +19,39 @@ const churchSlice = createSlice({
 		churches: [] as string[],
 		status: initialStatus,
 		church: initialChurch,
-		fetchingInProcess: false,
+		fetchingDetailsInProcess: false,
+		fetchingChurchesInProcess: false,
 		logo: '',
-		costPurposes: [] as {name: string, cost_code: number}[]
+		costPurposes: [] as { name: string; cost_code: number }[],
 	},
 	reducers: {
-        open(state) {
-            state.status = true;
-        },
+		open(state) {
+			state.status = true;
+		},
 		close(state) {
 			state.status = false;
 		},
 		setChurch(state, action) {
 			state.church = action.payload;
-            localStorage.setItem('church', action.payload);
+			localStorage.setItem('church', action.payload);
 		},
 		resetChurch(state) {
-            state.status = true;
+			state.status = true;
 			state.church = '';
-            localStorage.removeItem('church');
+			localStorage.removeItem('church');
 		},
-		setFetchingInProcess(state, action) {
-			state.fetchingInProcess = action.payload
+		setFetchingDetailsInProcess(state, action) {
+			state.fetchingDetailsInProcess = action.payload;
 		},
 		setChurchDetails(state, action) {
 			state.logo = action.payload['logo'];
-			state.costPurposes = action.payload['cost_purposes']
+			state.costPurposes = action.payload['cost_purposes'];
 		},
 		setChurches(state, action) {
-			state.churches = action.payload
+			state.churches = action.payload;
+		},
+		setFetchingChurchesInProcess(state, action) {
+			state.fetchingChurchesInProcess = action.payload;
 		}
 	},
 });

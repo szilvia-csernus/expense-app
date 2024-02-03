@@ -4,9 +4,6 @@ import { costFormActions } from './cost-form-slice';
 import { AppDispatch } from '.';
 import { Dispatch } from '@reduxjs/toolkit';
 
-const djangoHost = import.meta.env.VITE_DJANGO_HOST;
-const djangoPort = import.meta.env.VITE_DJANGO_PORT;
-const host_url = `${djangoHost}:${djangoPort}`;
 
 function closeAfterTimeout(dispatch: AppDispatch) {
 	const timeoutId = setTimeout(() => {
@@ -26,7 +23,7 @@ export const send = async (
 ) => {
 	dispatch(costFormActions.setSending());
 
-	const result = await fetch(`${host_url}/claims/send_expense_form/`, {
+	const result = await fetch(`/api/claims/send_expense_form/`, {
 		method: 'POST',
 		body: formData,
 	}).then(
