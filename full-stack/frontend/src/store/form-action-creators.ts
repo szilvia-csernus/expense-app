@@ -1,9 +1,9 @@
+import Cookies from 'js-cookie';
 import { errorMessageActions } from './error-message-slice';
 import { thankYouMessageActions } from './thank-you-message-slice';
 import { costFormActions } from './cost-form-slice';
 import { AppDispatch } from '.';
 import { Dispatch } from '@reduxjs/toolkit';
-
 
 function closeAfterTimeout(dispatch: AppDispatch) {
 	const timeoutId = setTimeout(() => {
@@ -22,9 +22,12 @@ export const send = async (
 	resetFileUploader: () => void
 ) => {
 	dispatch(costFormActions.setSending());
-
+	const csrftoken = Cookies.get('csrftoken') || '';
 	const result = await fetch(`/api/claims/send_expense_form/`, {
 		method: 'POST',
+		headers: {
+			'X-CSRFToken': csrftoken,
+		},
 		body: formData,
 	}).then(
 		(response) => {
