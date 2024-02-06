@@ -131,40 +131,42 @@ If an image needs to be updated:
 
     * Create a Task Definition for running both containers:
 
-        -Infrastructure requirements
-            Launch type: AWS FARGATE
-            Operating system/Architecture: Linux/X86_64 
-            Network Mode: awsvpc
-            Task size: 0.5 vCPU and 2GB memory.
-            Task Role: ecsTaskExecutionRole
-            Task execution role: ecsTaskExecutionRole (the default one)
+        - Infrastructure requirements
+            * Launch type: AWS FARGATE
+            * Operating system/Architecture: Linux/X86_64 
+            * Network Mode: awsvpc
+            * Task size: 0.5 vCPU and 2GB memory.
+            * Task Role: ecsTaskExecutionRole
+            * Task execution role: ecsTaskExecutionRole (the default one)
+
         - Container 1
-            Name: backend
-            Image: The ECR URI of the backend image, the :latest tag appended at the end
-            Essential container: No
-            Port mappings: Container port 8000, Protocol TCP, Port name, backend-8000-tcp, App protocol HTTP
-            Resource allocation limits: left blank
-            Environment: The environment variables from the .env file
-            Use log collection
-        Container Definitions: Add a new container
-            Name: nginx
-            Image: The ECR URI of the nginx image
-            Essential container: True
-            Port mappings: Host port 80 TCP, container port 80 HTTP
-            Startup dependency ordering: backend Start
+            * Name: backend
+            * Image: The ECR URI of the backend image, the :latest tag appended at the end
+            * Essential container: No
+            * Port mappings: Container port 8000, Protocol TCP, Port name, backend-8000-tcp, App protocol HTTP
+            * Resource allocation limits: left blank
+            * Environment: The environment variables from the .env file
+            * Use log collection
+
+        - Container 2
+            * Name: nginx
+            * Image: The ECR URI of the nginx image
+            * Essential container: True
+            * Port mappings: Host port 80 TCP, container port 80 HTTP
+            * Startup dependency ordering: backend Start
         
-        Storage
-            Volume 1
-            Volume name: static_volume
-            Configuration type: Configure at task definition creation
-            Volume type: Bind mount
-            Container mount points:
-                Container: backend
-                Source volume: static_volume
-                Container path: /staticfiles/
-            Volumes from:
-                Container: nginx
-                Source container: backend
+        - Storage
+            * Volume 1
+            * Volume name: static_volume
+            * Configuration type: Configure at task definition creation
+            * Volume type: Bind mount
+            * Container mount points:
+                - Container: backend
+                - Source volume: static_volume
+                - Container path: /staticfiles/
+            * Volumes from:
+                - Container: nginx
+                - Source container: backend
         
         Click Create
 
@@ -176,28 +178,30 @@ If an image needs to be updated:
 
 6. Navigate back to the Cluster and create a new Service
 
-    Capacity provider strategy: Use Custom (Advanced)
-    Capacity provider: FARGATE_SPOT
-    Platform version: LATEST(1.4.0)
+    - Capacity provider strategy: Use Custom (Advanced)
+    - Capacity provider: FARGATE_SPOT
+    - Platform version: LATEST(1.4.0)
 
     Deployment configuration
-    Application type: Service
-    Task definition family: choose the one you've just created
-    Service name: RunApp
-    Desired tasks: 1
+    - Application type: Service
+    - Task definition family: choose the one you've just created
+    - Service name: RunApp
+    - Desired tasks: 1
     
-    Networking: The VPC and subnets should be already filled in. Adjust if necessary.
-    Use an existing security group: choose the security group you've just created, delete the default
-    PublicIp: Turned on
+    - Networking: The VPC and subnets should be already filled in. Adjust if necessary.
+    - Use an existing security group: choose the security group you've just created, delete the default
+    - PublicIp: Turned on
 
-    Load Balancing: Application Load Balancer (ALB)
-    Use an existing load balancer: Choose the load balancer you've just created
-    Health check grace period: 120s
-    Container to load balance: nginx:80:80
-    Listener: use an existing listener: 80:HTTP
-    Target group: Use an existing Target group - the target group you've created
-    Health check path: /
-    Health check protocol: HTTP
+    - Load Balancing: Application Load Balancer (ALB)
+    - Use an existing load balancer: Choose the load balancer you've just created
+    - Health check grace period: 120s
+    - Container to load balance: nginx:80:80
+    - Listener: use an existing listener: 80:HTTP
+    - Target group: Use an existing Target group - the target group you've created
+    - Health check path: /
+    - Health check protocol: HTTP
+
+    CREATE
 
 
     Leave everythig else blank/default
