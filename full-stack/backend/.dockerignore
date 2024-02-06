@@ -7,3 +7,4 @@
 .env.prod
 **/migrations
 *.sqlite3
+.git
