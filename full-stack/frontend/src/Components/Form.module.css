@@ -72,9 +72,13 @@ is inconsistent with the React-controlled component. */
 .input[type="file"]::file-selector-button {
     display: none;
 }
+.fileInputField[type="file"] {
+    display: none;
+}
+
 
 .uploadButtonFrame {
-    margin: .5rem 0 1rem;
+    margin: .5rem 0 3rem;
 }
 
 .customFileUploadButton {

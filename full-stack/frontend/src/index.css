@@ -147,10 +147,6 @@ input[type="text"] {
     font-family: Helvetica, Arial, sans-serif;
 }
 
-input[type="file"] {
-    color: transparent;
-}
-
 input:-internal-autofill-selected {
     color: var(--input-text-color) !important;
 }
