@@ -1,6 +1,5 @@
 import classes from './Header.module.css';
-// import { ReactComponent as Logo } from '../images/logo.svg'
-import logoUrl from '../images/thxLogo.png';
+import logoUrl from '../images/expLogo.png';
 
 function Header() {
     return (
