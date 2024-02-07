@@ -58,16 +58,16 @@ html {
     --input-border-color: #e1e1e1;
     --input-bg-color: #f3f3f3;
     --input-text-color: #767676;
-    --primary-color: #006d81;
-    --secondary-color: #57d9ad;
-    --button-color: linear-gradient(150deg, #006d81, #57d9ad);
+    --primary-color: #008ca6;
+    --secondary-color: #57c8d9;
+    --button-color: linear-gradient(150deg, #006d81, #5de2d8);
     --invert-text-color: white;
     --danger-color: rgb(200, 0, 0);
     --modal-bg-color: rgb(54 54 54 / 85%);;
 
     --main-font-family: "Quicksand";
     --main-title-font-family: "Josefin Sans";
-    --body-font-weight: 400;
+    --body-font-weight: normal;
     --strong-font-weight: 700;
     --button-font-weight: 600;
 
@@ -113,14 +113,13 @@ footer {
     padding: 2rem 0 5rem;
 }
 
-
 h1 {
     font-family: var(--main-title-font-family);
     font-size: var(--main-title-font-size);
     color: var(--main-title-color);
     text-transform: uppercase;
     padding: 2rem 0;
-    border-bottom: 1px solid var(--secondary-color);
+    border-bottom: 1px solid var(--primary-color);
     margin: .5rem;
 }
 
