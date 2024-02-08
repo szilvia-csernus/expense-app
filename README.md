@@ -15,6 +15,7 @@ I used VSCode on MacOS to develop this project locally. For the backend, I used 
 ## Environment variables
 
     ```sh
+
     SECRET_KEY=my-secret-django-key
     DEVELOPMENT=1
 
@@ -35,6 +36,7 @@ I used VSCode on MacOS to develop this project locally. For the backend, I used 
     #  to as "localhost".
     BACKEND_HOST=backend
     FRONTEND_HOST=localhost
+
     ```
 
 
@@ -42,9 +44,11 @@ I used VSCode on MacOS to develop this project locally. For the backend, I used 
 
 
     ```sh
+
     DJANGO_SUPERUSER_USERNAME=my-superuser-username
     DJANGO_SUPERUSER_EMAIL=my-email
     DJANGO_SUPERUSER_PASSWORD=my-superuser-password
+
     ```
 
 ---
@@ -120,41 +124,51 @@ For deployment of the images, I took the following steps:
 If an image needs to be updated:
 1. Re-connect with the same command used earlier: `aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin <your-amazon-account-number>.dkr.ecr.eu-west-2.amazonaws.com`
 2. Update the image locally with `docker-compose build`
-3. Re-tag the aws version it with: `docker tag expense-app-backend:latest <your-amazon-account-number>.dkr.ecr.eu-west-2.amazonaws.com/expense-app-backend:latest` - Don't forget the latest tags!
+3. Re-tag the aws version with: `docker tag expense-app-backend:latest <your-amazon-account-number>.dkr.ecr.eu-west-2.amazonaws.com/expense-app-backend:latest` - Don't forget the latest tags!
 4. Push it up to AWS ECR like earlier: `docker push <the-repositoryUri>`
 
 
 ## Amazon AWS Elastic Container Service (ECS)
 
+
 1. Navigate to the ECS Dashboard and create a Cluster. Use the pre-selected `AWS Fargate (serverless)` option.
+
+
 2. Click on `Task definitions` and on `Create new task definition`.
 
+
     * Create a Task Definition for running both containers:
+
 
         - Infrastructure requirements
             * Launch type: AWS FARGATE
             * Operating system/Architecture: Linux/X86_64 
             * Network Mode: awsvpc
-            * Task size: 0.5 vCPU and 2GB memory.
+            * Task size: 0.25 vCPU and 0.5GB memory. (The smallest possible option to keep costs at minimum)
             * Task Role: ecsTaskExecutionRole
             * Task execution role: ecsTaskExecutionRole (the default one)
+
 
         - Container 1
             * Name: backend
             * Image: The ECR URI of the backend image, the :latest tag appended at the end
             * Essential container: No
             * Port mappings: Container port 8000, Protocol TCP, Port name, backend-8000-tcp, App protocol HTTP
+            * Read only root file system: don't check it
             * Resource allocation limits: left blank
             * Environment: The environment variables from the .env file
             * Use log collection
+
 
         - Container 2
             * Name: nginx
             * Image: The ECR URI of the nginx image
             * Essential container: True
             * Port mappings: Host port 80 TCP, container port 80 HTTP
+            * Read only root file system: don't check it
             * Startup dependency ordering: backend Start
-        
+
+
         - Storage
             * Volume 1
             * Volume name: static_volume
@@ -167,41 +181,56 @@ If an image needs to be updated:
             * Volumes from:
                 - Container: nginx
                 - Source container: backend
-        
+
+
         Click Create
 
-3. Create a Security Group
 
-4. Create an Application Load Balancer
 
-5. Create a Target Group
+3. Create a Security Group for the service: Security groups are "stateful" meaning the response of a request is allowed in the same connection, without opening up the port in the backword direction. In this case, allow inbound request from port 80, outbound for 5432 (postgres AWS RDS), 443 (https), a Custom TCP for port 587 (gmail smtp port) and 80 (http).
+
+
+4. Create a Security Group for the load balancer you'll create in the next step. Allow inbound traffic on port 80 and all traffic outbound.
+
+
+5. Create an Application Load Balancer. Apply the security group described above, set the timeout to 120s.
+
 
 6. Navigate back to the Cluster and create a new Service
 
+
     - Capacity provider strategy: Use Custom (Advanced)
-    - Capacity provider: FARGATE_SPOT
-    - Platform version: LATEST(1.4.0)
+    - Capacity provider: FARGATE_SPOT (This option is more cost-concious than FARGATE. It uses freely available resources instead of guaranteed ones for up to 90% less costs, in return for accepting some interruption to the service.)
+    - Platform version: At the time of writing this, there is a glitch here. If I chose LATEST, the deployment fails. I chose 1.4.0, which is currently the latest version.
+
 
     Deployment configuration
+    
     - Application type: Service
     - Task definition family: choose the one you've just created
     - Service name: RunApp
     - Desired tasks: 1
+
     
+    - Deployment options: Rolling update (default) 
     - Networking: The VPC and subnets should be already filled in. Adjust if necessary.
-    - Use an existing security group: choose the security group you've just created, delete the default
-    - PublicIp: Turned on
+    - Use an existing security group: choose the security group you've created earlier for the service, delete the default
+    - PublicIp: Turn on
+
 
     - Load Balancing: Application Load Balancer (ALB)
     - Use an existing load balancer: Choose the load balancer you've just created
     - Health check grace period: 120s
     - Container to load balance: nginx:80:80
-    - Listener: use an existing listener: 80:HTTP
-    - Target group: Use an existing Target group - the target group you've created
-    - Health check path: /
-    - Health check protocol: HTTP
+    - Listener: Create a new listener: 80:HTTP
+    - Target group: Create a New Target Group:
+                    Name: expense-app-tg
+                    Protocol (default): HTTP (port 80)
+                    Health Check protocol: HTTP
+                    Health check path: /
 
-    CREATE
+
+    **CREATE**
 
 
-    Leave everythig else blank/default
+    Leave everythig else the default/blank
