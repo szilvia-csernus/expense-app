@@ -112,7 +112,7 @@ def send_expense_form(request):
             break
 
         try:
-            max_size = (2480, 3507)  # Maximum size for A4 paper at 300 DPI
+            max_size = (700, 1100)
             receipt_buffer = process_file(receipt_file, max_size)
             pdf_merge.append(receipt_buffer)
             receipt_buffer.close()
