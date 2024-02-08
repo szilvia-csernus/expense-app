@@ -19,7 +19,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = 'DEVELOPMENT' in os.environ
+DEBUG = True if 'DEVELOPMENT' in os.environ else False
 
 # This is a list of strings representing the host/domain names that Django
 # can serve. This is a security measure to prevent HTTP Host header attacks.
