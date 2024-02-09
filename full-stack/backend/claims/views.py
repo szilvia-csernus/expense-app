@@ -99,7 +99,7 @@ def generate_message_to_finance(form, main_message):
 def process_file(file, max_size):
     """
     Open the file, if it's an image, resize if necessary and convert it to PDF.
-    Return a buffer with the PDF data.
+    Return a buffer with the PDF data. Expecting valid image or pdf files.
     """
     # Create a file-like buffer for the form to receive PDF data.
     buffer = BytesIO()
@@ -117,10 +117,6 @@ def process_file(file, max_size):
     elif file.content_type == 'application/pdf':
         # It's a PDF. Write it directly to the buffer.
         buffer.write(file.read())
-
-    else:
-        print(f"Unsupported file type: {file.content_type}")
-        return None
 
     buffer.seek(0)
     return buffer
