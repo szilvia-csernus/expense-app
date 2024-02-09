@@ -11,13 +11,36 @@ from rest_framework.response import Response
 from xhtml2pdf import pisa
 from django.shortcuts import get_object_or_404
 from .models import ClaimsCounter
+from .forms import ExpenseForm, ImageUploads
 from churches.models import Church
 import os
 
 
-# Open the file, if it's an image, resize if necessary and convert it to PDF
-# return a buffer with the PDF data.
+def validate_form(request):
+    """
+    Validate the form and the images. Return a 400 response if the form is
+    invalid, or if any of the images are invalid. Return None if everything is
+    valid.
+    """
+    form = ExpenseForm(request.data)
+    if not form.is_valid():
+        return Response(status=400, data=form.errors)
+
+    receipts = [ImageUploads({'image': request.FILES.get(name)})
+                for name in request.FILES
+                if name.startswith('receipt')]
+
+    if not all(f.is_valid() for f in receipts):
+        return Response(status=400, data={"message": "Invalid image file."})
+
+    return None
+
+
 def process_file(file, max_size):
+    """
+    Open the file, if it's an image, resize if necessary and convert it to PDF.
+    Return a buffer with the PDF data.
+    """
     buffer = BytesIO()
 
     if file.content_type.startswith('image/'):
@@ -44,29 +67,30 @@ def process_file(file, max_size):
 
 @api_view(['POST'])
 def send_expense_form(request):
+    validate_form(request)
     counter_obj = get_object_or_404(ClaimsCounter, pk=1)
     counter = str(counter_obj.counter)
-    form_data = request.data
+    form = request.data
 
-    form_data['counter'] = counter
-    church_name = form_data['church']
+    form['counter'] = counter
+    church_name = form['church']
     logo = get_object_or_404(Church, name=church_name).logo
-    form_data['logo'] = logo.url
+    form['logo'] = logo.url
 
     main_message = (
-        'Name: ' + form_data['name'] + '\n' +
-        'Email: ' + form_data['email'] + '\n' +
-        'Church: ' + form_data['church'] + '\n' +
-        'Purpose: ' + form_data['purpose'] + '\n' +
-        'Date of Expense: ' + form_data['date'] + '\n' +
-        'Description: ' + form_data['description'] + '\n' +
-        'Total: ' + form_data['total'] + '\n' +
-        'Bank account: ' + form_data['iban'] + '\n' +
-        'Name of Bank Account Holder: ' + form_data['accountName'] + '\n\n'
+        'Name: ' + form['name'] + '\n' +
+        'Email: ' + form['email'] + '\n' +
+        'Church: ' + form['church'] + '\n' +
+        'Purpose: ' + form['purpose'] + '\n' +
+        'Date of Expense: ' + form['date'] + '\n' +
+        'Description: ' + form['description'] + '\n' +
+        'Total: ' + form['total'] + '\n' +
+        'Bank account: ' + form['iban'] + '\n' +
+        'Name of Bank Account Holder: ' + form['accountName'] + '\n\n'
     )
 
     message_to_submitter = (
-        'Dear ' + form_data['name'] + ', \n\n' +
+        'Dear ' + form['name'] + ', \n\n' +
         'Thank you for submitting an expense form. We will process ' +
         'it shortly.' + '\n' +
         "If you don't hear from us, or if the reimbursement doesn't arrive " +
@@ -91,12 +115,15 @@ def send_expense_form(request):
 
     # Generate the PDF from the form HTML and add the pdf to the buffer.
     try:
-        html_content = render_to_string('email-template.html', form_data)
+        html_content = render_to_string('email-template.html', form)
         pisa.CreatePDF(html_content, dest=form_buffer)
         form_buffer.seek(0)
     except Exception as e:
         print(f"Error generating PDF: {e}")
-        return Response(status=500, data={"message": "Error generating PDF."})
+        return Response(status=500, data={"message": "Unfortunately, we were \
+                                          unable to process the PDF file you \
+                                          sent us. Please try taking a picture\
+                                           of it instead."})
 
     # The merger pdf will merge this and the upcoming PDF receipts together.
     pdf_merge = PdfWriter()
@@ -107,7 +134,7 @@ def send_expense_form(request):
     i = 0
     while True:
         receipt_field = 'receipt' + str(i)
-        receipt_file = form_data.get(receipt_field)
+        receipt_file = form.get(receipt_field)
         if receipt_file is None:
             break
 
@@ -123,12 +150,12 @@ def send_expense_form(request):
         i += 1
 
     # Create the email message.
-    subject = 'Expense Form ' + counter + ' - ' + form_data['purpose']
+    subject = 'Expense Form ' + counter + ' - ' + form['purpose']
     email_acknowledgement = EmailMessage(
         subject,
         message_to_submitter,
         settings.DEFAULT_FROM_EMAIL,
-        [form_data['email']]
+        [form['email']]
     )
 
     email_to_finance = EmailMessage(
