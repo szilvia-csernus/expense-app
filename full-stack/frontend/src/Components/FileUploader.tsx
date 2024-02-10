@@ -91,7 +91,10 @@ const FileUploader = ({
 						<DeleteButton onClick={() => removeFileFromList(file)}>
 							X
 						</DeleteButton>
-						{file.name} - {(file.size / 1024).toFixed(0)} kB
+						{file.name} -{' '}
+						{file.size < (1024 * 1024)
+							? `${(file.size / 1024).toFixed(0)} kB`
+							: `${(file.size / 1024 / 1024).toFixed(2)} MB`}
 					</li>
 				);
 			})}
