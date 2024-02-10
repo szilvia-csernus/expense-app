@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from xhtml2pdf import pisa
 from django.shortcuts import get_object_or_404
 from .models import ClaimsCounter
-from .forms import ExpenseForm, ReceiptUploads
+from .serializers import ExpenseSerializer, ReceiptUploadsSerializer
 from churches.models import Church
 import os
 
@@ -22,11 +22,12 @@ def validate_form(request):
     invalid, or if any of the images are invalid. Return None if everything is
     valid.
     """
-    form = ExpenseForm(request.data)
+    form = ExpenseSerializer(data=request.data)
     if not form.is_valid():
         return Response(status=400, data=form.errors)
 
-    receipts = [ReceiptUploads({'receipt': request.FILES.get(name)})
+    receipts = [ReceiptUploadsSerializer(
+        data={'receipt': request.FILES.get(name)})
                 for name in request.FILES
                 if name.startswith('receipt')]
 
