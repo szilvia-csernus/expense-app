@@ -3,7 +3,7 @@ from django.db import models
 
 class Church(models.Model):
     """Church model"""
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=200)
     logo = models.ImageField(upload_to='logos/', null=True, blank=True)
 
     def __str__(self):
@@ -19,7 +19,7 @@ class CostPurpose(models.Model):
                                null=True,
                                related_name='cost_purposes',
                                on_delete=models.CASCADE)
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=200)
     cost_code = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
