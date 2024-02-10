@@ -254,6 +254,7 @@ const CostForm = () => {
 									onBlur={nameBlurHandler}
 									value={nameValue}
 									autoComplete="name"
+									maxLength={200}
 								/>
 								<div
 									className={
@@ -281,6 +282,7 @@ const CostForm = () => {
 									onBlur={emailBlurHandler}
 									value={emailValue}
 									autoComplete="email"
+									maxLength={100}
 								/>
 								<div
 									className={
@@ -394,6 +396,7 @@ const CostForm = () => {
 									onChange={descriptionChangeHandler}
 									onBlur={descriptionBlurHandler}
 									value={descriptionValue}
+									maxLength={200}
 								/>
 								<div
 									className={
@@ -420,6 +423,7 @@ const CostForm = () => {
 									onChange={totalChangeHandler}
 									onBlur={totalBlurHandler}
 									value={totalValue}
+									maxLength={10}
 								/>
 								<div
 									className={
@@ -436,7 +440,7 @@ const CostForm = () => {
 								<p className={classes.labelSubText}>
 									Please take/upload a clear picture or PDF of the receipt of
 									the expense made. Accepted file types: png, jpg, jpeg, pdf.
-									Max file size: 5MB.
+									Max upload: 5MB.
 								</p>
 
 								<FileUploader
@@ -471,6 +475,7 @@ const CostForm = () => {
 									onBlur={ibanBlurHandler}
 									value={ibanValue}
 									autoComplete="on"
+									maxLength={34}
 								/>
 								<div
 									className={
@@ -498,6 +503,7 @@ const CostForm = () => {
 									onChange={accountNameChangeHandler}
 									onBlur={accountNameBlurHandler}
 									value={accountNameValue}
+									maxLength={200}
 								/>
 								<div
 									className={
