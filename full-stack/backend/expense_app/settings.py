@@ -55,8 +55,8 @@ INSTALLED_APPS = [
 
     'custom_commands',
     'profiles',
+    'cost_centers',
     'claims',
-    'churches',
 ]
 
 MIDDLEWARE = [
@@ -172,7 +172,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # The default file size limit is 2.5 MB. As the user can upload up to 5MB of
 # images and we have to process them to create the PDF, we increased the limit.
-FILE_UPLOAD_MAX_MEMORY_SIZE = 6 * 1024 * 1024  # 5 MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 6 * 1024 * 1024  # 6 MB
 
 CLOUDINARY_STORAGE = {
     'CLOUDINARY_URL': os.getenv("CLOUDINARY_URL"),
@@ -198,6 +198,21 @@ else:
     EMAIL_PORT = 587
     SERVER_EMAIL = os.environ.get('EMAIL_HOST_USER')
 
-FINANCE_EMAIL = os.environ.get('FINANCE_EMAIL')
 
 ADMINS = [('Admin', os.environ.get('EMAIL_HOST_USER'))]
+
+# Configure logging to put the logs in the console. This will be used by
+# AWS's CloudWatch to collect the logs.
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'WARNING',
+    },
+}
