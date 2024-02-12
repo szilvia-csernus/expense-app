@@ -12,35 +12,48 @@ The backend and frontend are in separate containers: The backend is running on G
 I used VSCode on MacOS to develop this project locally. For the backend, I used Python's venv package to create a virtual environment and utilised django's built in development server. For the database, I initially used SQLite3 then later moved on to the deployed postgresql database. For the frontend, I used @vite's built in development server to serve the React-Typescript code.
 
 
+For the virtual environment, assuming `python3` is installed, run `python -m venv venv`, then activate the environment with either VSCode's prompt or with `source venv/bin/activate`. (venv) will appear in front of the prompt.
+
+
+To start @vite's dev server: (assuming `node` is installed) cd into the frontend folder, then run `npm run dev`.
+To start up django's dev server: cd into the backend folder, then run `python manage.py runserver`.
+
+
 ## Environment variables
 
     ```sh
 
     SECRET_KEY=my-secret-django-key
-    DEVELOPMENT=1
+
+    # un-comment this if you want to use the local database (Sqlite3) as well as to set DEBUG to True.
+    # DEVELOPMENT=1
+
+    DATABASE_URL=postgres://<username>:<password>@<host>/<dbname>
 
     CLOUDINARY_URL=my-cloudinary-url
 
     EMAIL_HOST_USER=my-email-host-user
     EMAIL_HOST_PASS=my-email-host-users-password
 
-    FINANCE_EMAIL=my-finance-email
-
-    # For local development, when not using Docker:
+    # un-comment these for local development, when not using Docker:
+    # BACKEND_HOST=127.0.0.1  # this should match the port where the gunicorn server started. Could be 'localhost' too.
     # FRONTEND_URL=http://localhost:5173
 
-    FRONTEND_URL=http://localhost
-
+    # un-comment these for docker settings
+    # FRONTEND_URL=http://localhost
     # In the local Docker environment, the backend container is seen as "backend", its
-    # container name, by the frontend container. In AWS, the backend container is referred
-    #  to as "localhost".
-    BACKEND_HOST=backend
-    FRONTEND_HOST=localhost
+    # container name, by the frontend container. In AWS, the containers are referred as
+    # "localhost" by each other.
+    # BACKEND_HOST=backend
 
     ```
 
 
-    In the local SQLite3 database, I created the superuser with django's CLI. For deployment, I created a custom command to be used by the Docker container to create the superuser. The credentials for the superuser therefore, also need to be specified:
+In the local SQLite3 database, I created the superuser with django's CLI:
+
+`python manage.py createsuperuser`.
+
+For deployment, I created a custom command to be used by the Docker container to create the superuser. The credentials for the superuser therefore, also need to be specified as environment variables:
 
 
     ```sh
@@ -65,7 +78,7 @@ For deployment, I created `Dockerfiles` to containerize the project. The images 
         - Using Python on Linux-alpine as a base image
         - Installing all dependencies,
         - Connecting to the database,
-        - Createing and run all migrations,
+        - Createing and running all migrations,
         - Createing a superuser if none exists,
         - Starting up the Gunicorn server serving the django project.
 
@@ -89,14 +102,37 @@ For deployment, I created `Dockerfiles` to containerize the project. The images 
 
 `docker-compose -p local-expense-app -f docker-compose.local.yml up --build`. 
 
-    This built all the necessary docker images and also ran the docker containers. 
-    - The forntend on port 80 `http://localhost`.
+    This buils all the necessary docker images and also runs the docker containers. 
+    - The forntend being served on port 80 `http://localhost`.
     - The backend on port 8000 `http://localhost:8000`.
 
-* To stop the containers: `CTRL + C`, to destroy the containers: `docker-compose -p local-expense-app -f docker-compose.local.yml down`
+* To stop the containers: `CTRL + C`
+* To destroy the containers: `docker-compose -p local-expense-app -f docker-compose.local.yml down`
 * To destroy all the volumes: `docker volume prune`.
 
 * To build the images for AWS: `docker-compose build`. This builds all the necessary docker images needed for AWS deployment.
+
+
+## Connecting to the AWS RDS postgres database from the console
+
+When using django as a backend framework, it's not recommended to make changes in the database in any other ways but through django's tools. That is because django tracks all changes to ensure consistency and integrity. However, if needed, it is possible to connect to the database from the console. If `psql` is installed you can connect to the database: 
+
+`psql --host=your-rds-endpoint --port=5432 --username=your-username --password --dbname=your-dbname` 
+
+
+
+* When I needed to re-create all the tables in a specific app, I followed the following steps:
+    - connected to the database with the command above
+    - listed tables: `\dt`
+    - manually deleted the `__cache__` folders from both the app's route and also the `migrations` folder
+    - deleted the migrations from the `migrations` folder, leaving the `__init__.py` file in place.
+    - in the backend's Dockerfile, I added the `python manage.py migrate <app_name> zero` and commented out all other migration-related commands temporarily. The added command un-marks the `<app_name>`'s migrations so that django won't think it doesn't need to migrate the migrations we are about to recreate.
+    - in a new terminal, I ran the `docker-compose -p local-expense-app -f docker-compose.local.yml up --build` command, also making sure that `DEVELOPMENT` is commented out in the `.env` file, meaning the AWS database is being used, not the local SQLite3 database.
+    - in the `psql` terminal, checked if the tables had been deleted.
+    - deleted the previous command from the dockerfile and un-commented the previously out-commented lines.
+    - ran the docker-compose again. This recreated the tables.
+    - checked in the psql terminal if the new tables were present.
+    - exit the psql console: `\q`
 
 
 ## Amazon ECR (Elastic Container Registry)
@@ -151,7 +187,7 @@ If an image needs to be updated:
 
         - Container 1
             * Name: backend
-            * Image: The ECR URI of the backend image, the :latest tag appended at the end
+            * Image: The ECR URI of the backend image, the `:latest` tag appended at the end
             * Essential container: No
             * Port mappings: Container port 8000, Protocol TCP, Port name, backend-8000-tcp, App protocol HTTP
             * Read only root file system: don't check it
@@ -201,7 +237,7 @@ If an image needs to be updated:
 
     - Capacity provider strategy: Use Custom (Advanced)
     - Capacity provider: FARGATE_SPOT (This option is more cost-concious than FARGATE. It uses freely available resources instead of guaranteed ones for up to 90% less costs, in return for accepting some interruption to the service.)
-    - Platform version: At the time of writing this, there is a glitch here. If I chose LATEST, the deployment fails. I chose 1.4.0, which is currently the latest version.
+    - Platform version: At the time of writing this, there is a glitch here. If I chose LATEST, the deployment fails. Hence I chose 1.4.0, which is currently the latest version.
 
 
     Deployment configuration
@@ -234,3 +270,25 @@ If an image needs to be updated:
 
 
     Leave everythig else the default/blank
+
+
+---
+
+# Security
+
+## Secure Hosting
+
+## Secure Project Architecture
+
+## Security measures by Django
+
+
+
+
+# Vulnerabilities
+
+1. Malicious users can send unwanted emails, with pictures included, to both the finance team and the email address given in the form.
+
+2. Forms can be submitted without limits, resulting in possible service interruptions as well as increased hosting costs.
+
+3. Steganographic attacks: While this involves advanced techniques and therefore this app is not a likely target, it's theoretically possible to upload an image which contains malicious code whithout being detected by the browser or the backend validation. The malicious code, in theory, could affect the backend server but also the computers of the recepients of the emails.
