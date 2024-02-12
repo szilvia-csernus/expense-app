@@ -14,9 +14,10 @@ I used VSCode on MacOS to develop this project locally. For the backend, I used 
 
 For the virtual environment, assuming `python3` is installed, run `python -m venv venv`, then activate the environment with either VSCode's prompt or with `source venv/bin/activate`. (venv) will appear in front of the prompt.
 
+After cloning the project, navigate to the `backend` folder, install all dependencies with `pip install -r requirements.txt` and then run `python manage.py runserver`. 
 
-To start @vite's dev server: (assuming `node` is installed) cd into the frontend folder, then run `npm run dev`.
-To start up django's dev server: cd into the backend folder, then run `python manage.py runserver`.
+Navigate to the `frontend` folder, install all dependencies with `npm install` and start @vite's dev server:  `npm run dev`. (assuming `node` is installed)
+
 
 
 ## Environment variables
