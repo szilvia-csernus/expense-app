@@ -17,6 +17,10 @@ import logging
 # limit the log level of xhtml2pdf to ERROR
 logging.getLogger('xhtml2pdf').setLevel(logging.ERROR)
 
+# Set the maximum image pixel limit for typical bills/receipts that are not
+# very colourful but high resolution max. about 5MB.
+PilImage.MAX_IMAGE_PIXELS = 30000000
+
 
 def validate_form(request):
     """
@@ -27,6 +31,16 @@ def validate_form(request):
     form = ExpenseSerializer(data=request.data)
     if not form.is_valid():
         return Response(status=400, data=form.errors)
+
+    if not request.FILES:
+        return Response(status=400, data={"message": "File upload required."})
+
+    max_file_size = 5.1 * 1024 * 1024  # 5.1 MB
+
+    for file in request.FILES.values():
+        if file.size > max_file_size:
+            return Response(status=400, data={"message":
+                            f"File {file.name} is too large."})
 
     receipts = [ReceiptUploadsSerializer(
         data={'receipt': request.FILES.get(name)})
@@ -109,8 +123,9 @@ def process_file(file, max_size):
             # It's a PDF. Write it directly to the buffer.
             buffer.write(file.read())
     except Exception as e:
-        return Response(status=567, data={"message": "Error processing file",
-                                          "error": {e}})
+        return Response(status=406, data={
+                        "message": f"Error processing file {file.name}",
+                        "error": str(e)})
 
     buffer.seek(0)
     return buffer
@@ -166,7 +181,7 @@ def generate_attachment(form):
                 pdf_merge.append(receipt_buffer)
 
         except Exception as e:
-            return Response(status=567, data={"message": "Unfortunately, we \
+            return Response(status=406, data={"message": "Unfortunately, we \
                                           are unable to process one or more \
                                           image(s) you sent us. Please \
                                           try another format.", "error": e})
@@ -187,8 +202,9 @@ def send_expense_form(request):
     # Validate the form and the images, return a 400 response if invalid.
     form_validation_response = validate_form(request)
     if isinstance(form_validation_response, Response):
-        logger.error(form_validation_response.data["message"])
-        return Response(form_validation_response.status_code)
+        logger.error("Form validation failed: ")
+        logger.error(form_validation_response.data)
+        return Response(status=form_validation_response.status_code)
 
     form = request.data
 
@@ -211,9 +227,8 @@ def send_expense_form(request):
     # object, meaning there was an error, return this response to the user.
     attachment_response = generate_attachment(form)
     if isinstance(attachment_response, Response):
-        logger.error(attachment_response.data["message"],
-                     attachment_response.data["error"])
-        return Response(attachment_response.status_code)
+        logger.error(attachment_response.data)
+        return attachment_response
     else:
         attachment = attachment_response
 
@@ -252,7 +267,7 @@ def send_expense_form(request):
     except Exception as e:
         logger.error(f"Error sending email from name: {form['name']}, \
             email: {form['email']}. Error: {e}")
-        return Response(status=500)
+        return Response(status=406, data={"message": "Error sending email."})
 
     finally:
         # This code will be executed whether an exception occurs or not
@@ -265,9 +280,10 @@ def send_expense_form(request):
     except Exception as e:
         # Even if the counter wasn't incremented, the email was sent, so we
         # return a 200 status code.
-        logger.warning(f"Error incrementing {form['church']} counter: {e}")
+        logger.error(f"Error incrementing {form['church']} counter: {e}")
         return Response(status=200)
 
-    logger.warning(f"Email sent for expense form {counter} to " +
-                   f"{form['email']} and {church.finance_email}.")
+    logger.warning(
+        f"Email sent for expense form {counter} to {form['email']}" +
+        f" and finance team: {church.finance_email}.")
     return Response(status=200)
