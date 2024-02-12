@@ -1,4 +1,3 @@
-# from django.core.mail import send_mail
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from PIL import Image as PilImage
 from django.template.loader import render_to_string
@@ -10,10 +9,13 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from xhtml2pdf import pisa
 from django.shortcuts import get_object_or_404
-from .models import ClaimsCounter
 from .serializers import ExpenseSerializer, ReceiptUploadsSerializer
-from churches.models import Church
-import os
+from cost_centers.models import Church
+import logging
+
+
+# limit the log level of xhtml2pdf to ERROR
+logging.getLogger('xhtml2pdf').setLevel(logging.ERROR)
 
 
 def validate_form(request):
@@ -37,20 +39,6 @@ def validate_form(request):
     return None
 
 
-def update_form_with_additional_data(request, counter):
-    """
-    Append additional data to the form, such as the counter, the church's name,
-    and the logo's URL.
-    """
-    form = request.data
-
-    form['counter'] = counter
-    church_name = form['church']
-    logo = get_object_or_404(Church, name=church_name).logo
-    form['logo'] = logo.url
-    return form
-
-
 def generate_main_message(form):
     """
     Generate the main message for the email, using the form data.
@@ -68,26 +56,26 @@ def generate_main_message(form):
     )
 
 
-def generate_message_to_submitter(form, main_message):
+def generate_message_to_submitter(church, submitter, main_message):
     """
     Generate the message to the submitter, using the form data.
     """
     return (
-        f"Dear {form['name']}, \n\n"
+        f"Dear {submitter}, \n\n"
         f"Thank you for submitting an expense form. "
         f"We will process it shortly.\n"
         f"If you don't hear from us, or if the reimbursement doesn't arrive "
         f"to you within 2 weeks, then please reach out to us at "
-        f"{os.environ['FINANCE_EMAIL']}.\n\n"
-        f"Attila\n"
+        f"{church.finance_email}.\n\n"
+        f"{church.finance_contact_name}\n"
         f"Finance Team\n"
-        f"Redeemer International Church Rotterdam\n\n"
+        f"{church.long_name}\n\n"
         f"Ps - the submitted data:\n\n" +
         main_message
     )
 
 
-def generate_message_to_finance(form, main_message):
+def generate_message_to_finance(main_message):
     """
     Generate the message to the finance team, using the form data.
     """
@@ -105,19 +93,24 @@ def process_file(file, max_size):
     # Create a file-like buffer for the form to receive PDF data.
     buffer = BytesIO()
 
-    if file.content_type.startswith('image/'):
-        if isinstance(file, InMemoryUploadedFile):
-            # It's an image. Open it with PIL and resize it.
-            image = PilImage.open(file)
-            image.thumbnail(max_size)
+    try:
+        # Check if the file is an image or a PDF.
+        if file.content_type.startswith('image/'):
+            if isinstance(file, InMemoryUploadedFile):
+                # It's an image. Open it with PIL and resize it.
+                image = PilImage.open(file)
+                image.thumbnail(max_size)
 
-            # Convert the image to PDF and write it to a buffer.
-            image.save(buffer, 'PDF')
-            image.close()
+                # Convert the image to PDF and write it to a buffer.
+                image.save(buffer, 'PDF')
+                image.close()
 
-    elif file.content_type == 'application/pdf':
-        # It's a PDF. Write it directly to the buffer.
-        buffer.write(file.read())
+        elif file.content_type == 'application/pdf':
+            # It's a PDF. Write it directly to the buffer.
+            buffer.write(file.read())
+    except Exception as e:
+        return Response(status=567, data={"message": "Error processing file",
+                                          "error": {e}})
 
     buffer.seek(0)
     return buffer
@@ -133,19 +126,15 @@ def generate_form_pdf(form):
     try:
         html_content = render_to_string('email-template.html', form)
         pisa.CreatePDF(html_content, dest=buffer)
-        buffer.seek(0)
     except Exception as e:
-        print(f"Error generating PDF: {e}")
-        return Response(status=500, data={"message": "Unfortunately, we were \
-                                          unable to process the PDF file you \
-                                          sent us. Please try taking a picture\
-                                           of it instead."})
+        return Response(status=500, data={"message": "Error generating PDF",
+                                          "error": e})
 
     buffer.seek(0)
     return buffer
 
 
-def generate_attachement(form):
+def generate_attachment(form):
     # The merger pdf will merge the generated PDFs together.
     pdf_merge = PdfWriter()
 
@@ -170,16 +159,20 @@ def generate_attachement(form):
         try:
             max_size = (700, 1100)
             receipt_buffer = process_file(receipt_file, max_size)
+            if isinstance(receipt_buffer, Response):
+                return receipt_buffer
+
             if receipt_buffer is not None:
                 pdf_merge.append(receipt_buffer)
-                receipt_buffer.close()
 
         except Exception as e:
-            print(f"Error processing receipt {i}: {e}")
-            return Response(status=500, data={"message": "Unfortunately, we \
+            return Response(status=567, data={"message": "Unfortunately, we \
                                           are unable to process one or more \
                                           image(s) you sent us. Please \
-                                          try another format."})
+                                          try another format.", "error": e})
+
+        finally:
+            receipt_buffer.close()
 
         i += 1
 
@@ -188,28 +181,41 @@ def generate_attachement(form):
 
 @api_view(['POST'])
 def send_expense_form(request):
-    # Validate the form and the images, and return a 400 response if invalid.
+    # Initialize the logger.
+    logger = logging.getLogger(__name__)
+
+    # Validate the form and the images, return a 400 response if invalid.
     form_validation_response = validate_form(request)
     if isinstance(form_validation_response, Response):
-        return form_validation_response
+        logger.error(form_validation_response.data["message"])
+        return Response(form_validation_response.status_code)
 
-    # Retrieve the counter from the database.
-    counter_obj = get_object_or_404(ClaimsCounter, pk=1)
-    counter = str(counter_obj.counter)
+    form = request.data
 
-    # Update the form with data retrieved from the database.
-    form = update_form_with_additional_data(request, counter)
+    # Retrieve the church from the database.
+    church = get_object_or_404(Church, short_name=form['church'])
+    counter = str(church.claims_counter)
+
+    # Append the logo_url and the counter to the form.
+    form['logo'] = church.logo.url
+    form['counter'] = counter
 
     # Construct the text messages for the emails.
     main_message = generate_main_message(form)
-    message_to_submitter = generate_message_to_submitter(form, main_message)
-    message_to_finance = generate_message_to_finance(form, main_message)
+    message_to_submitter = generate_message_to_submitter(church,
+                                                         form['name'],
+                                                         main_message)
+    message_to_finance = generate_message_to_finance(main_message)
 
-    # Construct the PDF attachment. If the attachment is a Response, meaning
-    # there was an error, return this response to the user.
-    attachement = generate_attachement(form)
-    if isinstance(attachement, Response):
-        return attachement
+    # Construct the PDF attachment. If the attachment_response is a Response
+    # object, meaning there was an error, return this response to the user.
+    attachment_response = generate_attachment(form)
+    if isinstance(attachment_response, Response):
+        logger.error(attachment_response.data["message"],
+                     attachment_response.data["error"])
+        return Response(attachment_response.status_code)
+    else:
+        attachment = attachment_response
 
     # Create the email message.
     subject = 'Expense Form ' + counter + ' - ' + form['purpose']
@@ -224,30 +230,44 @@ def send_expense_form(request):
         subject,
         message_to_finance,
         settings.DEFAULT_FROM_EMAIL,
-        [os.environ['FINANCE_EMAIL']]
+        [church.finance_email]
     )
 
-    # Create the final PDF and close the merger.
-    buffer_for_attachement = BytesIO()
-    attachement.write(buffer_for_attachement)
+    try:
+        # Create the final PDF and close the merger.
+        buffer_for_attachment = BytesIO()
+        attachment.write(buffer_for_attachment)
 
-    # Attach the final PDF to the emails an send them.
-    attachment_name = 'EF' + counter + '.pdf'
-    email_to_finance.attach(attachment_name,
-                            buffer_for_attachement.getvalue(),
-                            "application/pdf")
-    email_to_finance.send()
-    email_acknowledgement.attach(attachment_name,
-                                 buffer_for_attachement.getvalue(),
-                                 "application/pdf")
-    email_acknowledgement.send()
+        # Attach the final PDF to the emails an send them.
+        attachment_name = 'EF' + counter + '.pdf'
+        email_to_finance.attach(attachment_name,
+                                buffer_for_attachment.getvalue(),
+                                "application/pdf")
+        email_to_finance.send()
+        email_acknowledgement.attach(attachment_name,
+                                     buffer_for_attachment.getvalue(),
+                                     "application/pdf")
+        email_acknowledgement.send()
 
-    buffer_for_attachement.close()
-    attachement.close()
+    except Exception as e:
+        logger.error(f"Error sending email from name: {form['name']}, \
+            email: {form['email']}. Error: {e}")
+        return Response(status=500)
 
-    # After the email has been sent, increment the counter
-    counter_obj.increment()
+    finally:
+        # This code will be executed whether an exception occurs or not
+        buffer_for_attachment.close()
+        attachment.close()
 
-    print(f"Email sent for expense form {counter} to {form['email']} and \
-          {os.environ['FINANCE_EMAIL']}")
-    return Response(status=200, data={"message": "Email sent."})
+    try:
+        # After the email has been sent, increment the counter
+        church.increment_claims_counter()
+    except Exception as e:
+        # Even if the counter wasn't incremented, the email was sent, so we
+        # return a 200 status code.
+        logger.warning(f"Error incrementing {form['church']} counter: {e}")
+        return Response(status=200)
+
+    logger.warning(f"Email sent for expense form {counter} to " +
+                   f"{form['email']} and {church.finance_email}.")
+    return Response(status=200)
