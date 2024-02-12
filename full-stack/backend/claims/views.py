@@ -17,10 +17,6 @@ import logging
 # limit the log level of xhtml2pdf to ERROR
 logging.getLogger('xhtml2pdf').setLevel(logging.ERROR)
 
-# Set the maximum image pixel limit for typical bills/receipts that are not
-# very colourful but high resolution max. about 5MB.
-PilImage.MAX_IMAGE_PIXELS = 30000000
-
 
 def validate_form(request):
     """
@@ -30,17 +26,25 @@ def validate_form(request):
     """
     form = ExpenseSerializer(data=request.data)
     if not form.is_valid():
-        return Response(status=400, data=form.errors)
+        return Response(status=400, data={
+            "message":
+                f"Escaped Frontend validation: form.errors {form.errors}"})
 
     if not request.FILES:
-        return Response(status=400, data={"message": "File upload required."})
+        return Response(
+          status=400, data={
+            "message": "Escaped Frontend validation: File upload required."})
 
     max_file_size = 5.1 * 1024 * 1024  # 5.1 MB
 
     for file in request.FILES.values():
         if file.size > max_file_size:
-            return Response(status=400, data={"message":
-                            f"File {file.name} is too large."})
+            return Response(
+              status=400,
+              data={
+                  "message":
+                  f"Escaped Frontend validation: \
+                  File {file.name} is too large."})
 
     receipts = [ReceiptUploadsSerializer(
         data={'receipt': request.FILES.get(name)})
@@ -48,7 +52,11 @@ def validate_form(request):
                 if name.startswith('receipt')]
 
     if not all(f.is_valid() for f in receipts):
-        return Response(status=400, data={"message": "Invalid image file."})
+        return Response(
+            status=400,
+            data={
+                "message": "Escaped Frontend validation: \
+                Invalid image file."})
 
     return None
 
@@ -267,7 +275,8 @@ def send_expense_form(request):
     except Exception as e:
         logger.error(f"Error sending email from name: {form['name']}, \
             email: {form['email']}. Error: {e}")
-        return Response(status=406, data={"message": "Error sending email."})
+        return Response(status=406, data={
+            "message": "Error sending email. Please try again."})
 
     finally:
         # This code will be executed whether an exception occurs or not

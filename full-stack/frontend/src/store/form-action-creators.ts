@@ -36,11 +36,11 @@ export const send = async (
 				dispatch(thankYouMessageActions.open());
 				closeAfterTimeout(dispatch);
 				resetForm();
-			} else if (response.status === 422) {
+			} else if (response.status === 406) {
 				dispatch(costFormActions.resetSending());
 				dispatch(
 					errorMessageActions.setMessage(
-						'Oops! We couldn’t open this PDF file, please make a screenshot or a photo instead! Thanks!'
+						"Unfortunately, we were unable to process the file(s) you've uploaded. Please try another file format!"
 					)
 				);
 				dispatch(errorMessageActions.open());
