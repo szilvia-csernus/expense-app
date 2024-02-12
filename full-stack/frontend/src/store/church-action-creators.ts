@@ -32,7 +32,7 @@ export const getChurches = (dispatch: Dispatch) => {
 	const fetchData = async () => {
 		const response = await fetch(`/api/churches/names/`);
 		const data = await response.json();
-		const churchList = data.map((church: { name: string }) => church.name);
+		const churchList = data.map((church: { short_name: string }) => church.short_name);
 		dispatch(churchActions.setChurches(churchList));
 		dispatch(churchActions.setFetchingChurchesInProcess(false));
 	};
