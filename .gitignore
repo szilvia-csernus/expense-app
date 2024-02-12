@@ -7,3 +7,4 @@ __pycache__
 .env.prod
 *.sqlite3
 *migrations
+*db
