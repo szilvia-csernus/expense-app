@@ -9,7 +9,7 @@ class ExpenseSerializer(serializers.Serializer):
     date = serializers.DateField()
     description = serializers.CharField(max_length=200)
     total = serializers.CharField(max_length=10)
-    iban = serializers.CharField(max_length=34)
+    iban = serializers.CharField(max_length=34, required=False)
     accountName = serializers.CharField(max_length=200, required=False)
 
 
