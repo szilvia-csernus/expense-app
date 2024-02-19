@@ -6,5 +6,4 @@ __pycache__
 .env.dev
 .env.prod
 *.sqlite3
-*migrations
 *db

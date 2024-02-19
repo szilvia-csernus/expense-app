@@ -5,7 +5,6 @@
 .env
 .env.dev
 .env.prod
-**/migrations
 *.sqlite3
 .git
 db
