@@ -101,7 +101,7 @@ const CostForm = () => {
 		inputChangeHandler: ibanChangeHandler,
 		inputBlurHandler: ibanBlurHandler,
 		reset: ibanReset,
-	} = useInput(isNotEmpty);
+	} = useInput(noValidate);
 
 	const {
 		value: accountNameValue,
@@ -457,14 +457,14 @@ const CostForm = () => {
 
 							{/* REIMBURSEMENT DETAILS  */}
 							<fieldset>
-								<h2>Reimbursement Details</h2>
+								<h2>Reimbursement Details (optional)</h2>
 								{/* Bank Account  */}
 								<label htmlFor="iban" className={classes.labelText}>
-									Bank Account *
+									Bank Account Number (IBAN)
 								</label>
 								<p className={classes.labelSubText}>
-									The IBAN account number, where the reimbursement is to be
-									transferred.
+									If you are not a regular donor of our church, then please give
+									us an IBAN where we can send you the reimbursement.
 								</p>
 								<input
 									id="iban"
