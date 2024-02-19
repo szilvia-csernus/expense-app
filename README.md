@@ -67,7 +67,7 @@ For deployment, I created a custom command to be used by the Docker container to
 
 ---
 
-# Deployment
+# Deployment for AWS Elastic Container Registry (ECR) and AWS Elastic Container Services (ECS)
 
 
 ## Docker Images
@@ -101,17 +101,17 @@ For deployment, I created `Dockerfiles` to containerize the project. The images 
 
 * To run the deployment version locally, I used the following command: 
 
-`docker-compose -p local-expense-app -f docker-compose.local.yml up --build`. 
+`docker-compose -p local-expense-app -f docker-compose.aws_local.yml up --build`. 
 
     This buils all the necessary docker images and also runs the docker containers. 
     - The forntend being served on port 80 `http://localhost`.
     - The backend on port 8000 `http://localhost:8000`.
 
 * To stop the containers: `CTRL + C`
-* To destroy the containers: `docker-compose -p local-expense-app -f docker-compose.local.yml down`
+* To destroy the containers: `docker-compose -p local-expense-app -f docker-compose.aws_local.yml down`
 * To destroy all the volumes: `docker volume prune`.
 
-* To build the images for AWS: `docker-compose build`. This builds all the necessary docker images needed for AWS deployment.
+* To build the images for AWS: `docker-compose -f docker-compose.aws.yml build`. This builds all the necessary docker images needed for AWS deployment.
 
 
 ## Connecting to the AWS RDS postgres database from the console
@@ -128,7 +128,7 @@ When using django as a backend framework, it's not recommended to make changes i
     - manually deleted the `__cache__` folders from both the app's route and also the `migrations` folder
     - deleted the migrations from the `migrations` folder, leaving the `__init__.py` file in place.
     - in the backend's Dockerfile, I added the `python manage.py migrate <app_name> zero` and commented out all other migration-related commands temporarily. The added command un-marks the `<app_name>`'s migrations so that django won't think it doesn't need to migrate the migrations we are about to recreate.
-    - in a new terminal, I ran the `docker-compose -p local-expense-app -f docker-compose.local.yml up --build` command, also making sure that `DEVELOPMENT` is commented out in the `.env` file, meaning the AWS database is being used, not the local SQLite3 database.
+    - in a new terminal, I ran the `docker-compose -p local-expense-app -f docker-compose.aws_local.yml up --build` command, also making sure that `DEVELOPMENT` is commented out in the `.env` file, meaning the AWS database is being used, not the local SQLite3 database.
     - in the `psql` terminal, checked if the tables had been deleted.
     - deleted the previous command from the dockerfile and un-commented the previously out-commented lines.
     - ran the docker-compose again. This recreated the tables.
@@ -160,7 +160,7 @@ For deployment of the images, I took the following steps:
 
 If an image needs to be updated:
 1. Re-connect with the same command used earlier: `aws ecr get-login-password --region eu-west-2 | docker login --username AWS --password-stdin <your-amazon-account-number>.dkr.ecr.eu-west-2.amazonaws.com`
-2. Update the image locally with `docker-compose build`
+2. Update the image locally with `docker-compose -f docker-compose.aws.yml build`
 3. Re-tag the aws version with: `docker tag expense-app-backend:latest <your-amazon-account-number>.dkr.ecr.eu-west-2.amazonaws.com/expense-app-backend:latest` - Don't forget the latest tags!
 4. Push it up to AWS ECR like earlier: `docker push <the-repositoryUri>`
 
@@ -193,7 +193,7 @@ If an image needs to be updated:
             * Port mappings: Container port 8000, Protocol TCP, Port name, backend-8000-tcp, App protocol HTTP
             * Read only root file system: don't check it
             * Resource allocation limits: left blank
-            * Environment: The environment variables from the .env file
+            * Environment: The environment variables from the .env file, entered manually
             * Use log collection
 
 

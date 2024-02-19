@@ -6,7 +6,7 @@ services:
     container_name: backend
     build:
       context: .
-      dockerfile: ./full-stack/backend/Dockerfile
+      dockerfile: ./dockerfiles/Dockerfile.aws_backend
     ports:
       - "8000:8000"
     env_file:
@@ -17,8 +17,8 @@ services:
   nginx:
     container_name: nginx
     build:
-      context: ./full-stack/frontend
-      dockerfile: Dockerfile.local
+      context: .
+      dockerfile: ./dockerfiles/Dockerfile.aws_nginx_local
     volumes:
       - static_volume:/staticfiles/
     ports:
