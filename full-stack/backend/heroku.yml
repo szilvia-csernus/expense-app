@@ -2,7 +2,6 @@ build:
   docker:
     web: Dockerfile.heroku_backend
 release:
-  image: web
   command:
     - python manage.py migrate --noinput
 run:
