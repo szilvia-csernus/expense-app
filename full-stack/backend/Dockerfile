@@ -17,7 +17,7 @@ RUN pip install --upgrade pip && pip install -r requirements.txt
 
 COPY . .
 
-# Collect static files, --noinput tells django to overwrite any existing files.
+# Collect static files, --noinput tells Django to overwrite any existing files.
 # RUN python manage.py collectstatic --noinput
 
 # recommended by heroku
