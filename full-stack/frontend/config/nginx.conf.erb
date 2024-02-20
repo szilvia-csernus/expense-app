@@ -59,9 +59,9 @@ http {
 			error_page 404 = /index.html;
 		}
 
-        location /api/ {
-            proxy_pass https://expense-app--backend-00a44ab990b4.herokuapp.com/;
-        }
+        # location /api/ {
+        #     proxy_pass https://expense-app--backend-00a44ab990b4.herokuapp.com/;
+        # }
 
 		## Define specific behaviors for sub directories and other locations.
 		# location /assets {
