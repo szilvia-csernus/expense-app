@@ -2,6 +2,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 import os
 import dj_database_url
+import django_heroku
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -160,10 +162,14 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'), )
+STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'), )  # has to be a tuple
 
-STATIC_ROOT = '/staticfiles/'  # new
-# WHITENOISE_STATIC_ROOT = BASE_DIR / 'staticfiles'  # new
+# STATIC_ROOT = '/staticfiles/'  # for AWS deployment
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # for Heroku deployment
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+WHITENOISE_STATIC_ROOT = BASE_DIR / 'staticfiles/'  # new
+
+django_heroku.settings(locals())
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
