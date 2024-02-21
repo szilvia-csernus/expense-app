@@ -164,8 +164,8 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'), )  # has to be a tuple
 
-STATIC_ROOT = '/staticfiles/'  # for AWS deployment
-# STATIC_ROOT = BASE_DIR / 'staticfiles'  # for Heroku deployment
+# STATIC_ROOT = '/staticfiles/'  # for AWS deployment
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # for Heroku deployment
 
 # for Heroku deployment
 # STATICFILES_STORAGE =
