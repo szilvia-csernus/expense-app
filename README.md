@@ -1,15 +1,25 @@
 # Expense App
 
-Full-stack web application using `Django REST`, `postgreSQL`, `ReactJS + Typescript @vite`, and `Docker`. Created for streamlining the expense reinbursement process for church members of various churches in the Neatherlands.
+Full-stack web application using `Django REST` framework for backend, `postgreSQL` for database and `ReactJS + Typescript @vite` for frontend. Created for streamlining the expense reinbursement process for church members of Redeemer Churches and connected organisations in the Neatherlands.
 
-The project is deployed on `AWS Elastic Container Service (Fargate Spot)`, the Postgresql database on `AWS Relational Database Service (RDS)`. 
-The backend and frontend are in separate containers: The backend is running on Gunicorn (linux-alpine) and the static files are served from Nginx (also linux-alpine). The images that are used by the containers are stored in `AWS Elastic Container Registry (ECR)`. The media files (church logos) are stored on `Cloudinary`. Emails are sent with Gmail's SMTP server.
+Church members frequently pay for goods and services for the church's benefit which they can later submit for reimbursement. In the past, this process involved lots of administration from both members and admins, which church leaders wished to reduce. An earlier solution to this problem, implemented by Redeemer International Church Rotterdam, was a WordPress website, which allowed users to upload the receipts alongside their details into a form to be sent to the finance team via email. While this solution helped the end users, the finance team had more work with converting the incoming image files, many times in different file formats into one pdf document. Other churches faced similar problems, so a universal solution was needed.
+
+This app allows the end-users to upload their expense forms to any of the listed churches / organisations, attaching the receipts in various image or pdf formats. The incoming forms and the receipts are converted to one multi-page pdf document, and sent to the respective finance teams.
+
+Admins can register new churches or organisations. In addition to the church's name and finance teams' contact details, they can upload the organisation's logo which makes the forms more recognisable by end users.
+
+The project is currently deployed on `Heroku`. The backend and frontend are in separate dynos and the PostgreSQL database is running in a managed postgresql service. Emails are sent with Gmail's SMTP server, the images (church logos) are stored on `Cloudinary`. 
+
+Originally, the app was deployed on `AWS Elastic Container Service (Fargate Spot)`, the Postgresql database on `AWS Relational Database Service (RDS)`, but later on it was migrated over to Heroku mainly for cost reasons.
+
+This documentation provides instructions for both Heroku and AWS ECS deployments.
+
 
 ---
 
 # Local development
 
-I used VSCode on MacOS to develop this project locally. For the backend, I used Python's venv package to create a virtual environment and utilised django's built in development server. For the database, I initially used SQLite3 then later moved on to the deployed postgresql database. For the frontend, I used @vite's built in development server to serve the React-Typescript code.
+I used VSCode on MacOS to develop this project locally. For the backend, I used Python's venv package to create a virtual environment and utilised django's built in development server. For the database, I initially used SQLite3 then later moved on to AWS RDS postgresql database. For the frontend, I used @vite's built in development server to serve the React-Typescript code.
 
 
 For the virtual environment, assuming `python3` is installed, run `python -m venv venv`, then activate the environment with either VSCode's prompt or with `source venv/bin/activate`. (venv) will appear in front of the prompt.
@@ -18,17 +28,22 @@ After cloning the project, navigate to the `backend` folder, install all depende
 
 Navigate to the `frontend` folder, install all dependencies with `npm install` and start @vite's dev server:  `npm run dev`. (assuming `node` is installed)
 
+As this app is a `Progressive Web App`, all frontend content is cached in the browser so `empty cache and hard reload` is needed whenever update is made.
 
+---
 
-## Environment variables
+# Environment variables
 
     ```sh
 
     SECRET_KEY=my-secret-django-key
+    DEBUG=True  # Don't set this setting in production
+    NO_HTTPS=1  # Don't set this setting in production
 
-    # un-comment this if you want to use the local database (Sqlite3) as well as to set DEBUG to True.
-    # DEVELOPMENT=1
+    # un-comment this if you want to use the the local Sqlite3 database.
+    # SQLITE3=True
 
+    # This setting to be used if SQLITE3=True is commented out
     DATABASE_URL=postgres://<username>:<password>@<host>/<dbname>
 
     CLOUDINARY_URL=my-cloudinary-url
@@ -47,6 +62,14 @@ Navigate to the `frontend` folder, install all dependencies with `npm install` a
     # "localhost" by each other.
     # BACKEND_HOST=backend
 
+    # For AWS deployment, I created a custom command to be used by the Docker container to create the superuser 
+    # for the first time after the database was created. The credentials for the superuser therefore, 
+    # also need to be specified as environment variables:
+
+    # DJANGO_SUPERUSER_USERNAME=my-superuser-username
+    # DJANGO_SUPERUSER_EMAIL=my-email
+    # DJANGO_SUPERUSER_PASSWORD=my-superuser-password
+
     ```
 
 
@@ -54,25 +77,83 @@ In the local SQLite3 database, I created the superuser with django's CLI:
 
 `python manage.py createsuperuser`.
 
-For deployment, I created a custom command to be used by the Docker container to create the superuser. The credentials for the superuser therefore, also need to be specified as environment variables:
 
 
-    ```sh
+# Deployment with Heroku
 
-    DJANGO_SUPERUSER_USERNAME=my-superuser-username
-    DJANGO_SUPERUSER_EMAIL=my-email
-    DJANGO_SUPERUSER_PASSWORD=my-superuser-password
 
-    ```
+## Backend
+
+1. Create an app on Heroku: Click on `Create App`
+
+2. App name: `expense-app--backend`, Region: `Europe`
+
+3. Log in to Heroku in the terminal: `heroku login`
+
+4. Add a postgres database: `heroku addons:create heroku-postgresql --app expense-app--backend`
+    This should have added `DATABASE_URL` to the config vars in Heroku Settings.
+
+5. Add all other config vars at Settins / Reveal Config Vars / Add Config Vars
+
+6. As we are going to push from one git repo to two remote heroku repos (one for backend and one for frontend), name the remote repositoriy to heroku-backend for clarity:
+
+    `heroku git:remote -a expense-app--backend -r heroku-backend`
+
+7. Push the content of the backend folder to this remote repo:
+
+    `git subtree push --prefix full-stack/backend heroku-backend main`
+
+8. Create a superuser for the new database:
+
+    `heroku run python manage.py createsuperuser --app expense-app--backend`
+
+9. To re-deploy any previously committed code, run:
+
+    `git subtree push --prefix full-stack/backend heroku-backend main`
+
+    from the root (expense-app) directory.
+
+
+
+## Frontend
+
+
+1. Create an app on Heroku: Click on `Create App`
+
+2. App name: `expense-app`, Region: `Europe`
+
+3. Name the remote repo:
+
+    `heroku git:remote -a expense-app -r heroku-frontend`
+
+4. Set the nodejs buildpack to be used to build the `dist` folder (with the heroku-postbuild script)
+    `heroku buildpacks:add heroku/nodejs --index 1 --app expense-app`
+
+5. Set the nginx buildback to static serving:
+    `heroku buildpacks:add heroku-community/nginx --index 2 --app expense-app`
+
+6. The `config/nginx.conf.erb` file and the `Procfile` provides the nginx configuration and start script.
+    I also added `"heroku-postbuild": "npm run build"` to the `scripts` in `package.json` which heroku will run when the project is being built.
+
+7. If needed, a `bash` container can be run to interact with the remote container:
+    `heroku run bash --app expense-app`
+
+8. To push only the frontend folder into this heroku repo (which will start up the build & deployment process):
+
+    `git subtree push --prefix full-stack/frontend heroku-frontend main`
 
 ---
 
 # Deployment for AWS Elastic Container Registry (ECR) and AWS Elastic Container Services (ECS)
 
 
+For deployment to AWS ECS, `Docker` was needed to run the backend and frontend in separate containers: The backend container uses Gunicorn (linux-alpine), the static files are served from Nginx (also linux-alpine). The images that are used by the containers are stored in `AWS Elastic Container Registry (ECR)`.
+
+---
+
 ## Docker Images
 
-For deployment, I created `Dockerfiles` to containerize the project. The images that are used for deployment are created with `docker-compose`. The `docker-compose.local.yml` file allows to build the images and try out the running containers locally before uploading the images to AWS Elastic Container Registry.
+For deployment, I created `Dockerfiles` to containerize the project. The images that are used for deployment are created with `docker-compose`. The `docker-compose.aws_local.yml` file allows to build the images and try out the running containers locally before uploading the images to AWS Elastic Container Registry.
 
     The backend image provides blueprint for the following:
 
@@ -101,7 +182,7 @@ For deployment, I created `Dockerfiles` to containerize the project. The images 
 
 * To run the deployment version locally, I used the following command: 
 
-`docker-compose -p local-expense-app -f docker-compose.aws_local.yml up --build`. 
+    `docker-compose -p local-expense-app -f docker-compose.aws_local.yml up --build`. 
 
     This buils all the necessary docker images and also runs the docker containers. 
     - The forntend being served on port 80 `http://localhost`.
@@ -238,7 +319,7 @@ If an image needs to be updated:
 
     - Capacity provider strategy: Use Custom (Advanced)
     - Capacity provider: FARGATE_SPOT (This option is more cost-concious than FARGATE. It uses freely available resources instead of guaranteed ones for up to 90% less costs, in return for accepting some interruption to the service.)
-    - Platform version: At the time of writing this, there is a glitch here. If I chose LATEST, the deployment fails. Hence I chose 1.4.0, which is currently the latest version.
+    - Platform version: At the time of writing this, there is a glitch here. When I chose LATEST, the deployment failed. Hence I chose 1.4.0, which is currently the latest version.
 
 
     Deployment configuration
@@ -272,23 +353,73 @@ If an image needs to be updated:
 
     Leave everythig else the default/blank
 
+---
+
+# Migrating the database from AWS RDS to Heroku postgres
+
+For this operation it's essential that the postgres version is the same in all 3 places: AWS RDS, local psql, Heroku postgres
+
+Dump the aws records locally into a file called `db.dump`:
+
+`pg_dump -Fc --no-acl --no-owner -h aws-rds-endpoint -U aws-rds-username -d aws-rds-database > db.dump`
+
+-Fc: This stands for "custom format". This option outputs a custom-format archive suitable for input into pg_restore. The custom format allows for easy loading of the dump into a new database. It's also a compressed format, which can significantly reduce the size of the dump.
+
+--no-acl: This prevents any access privilege (grant/revoke) commands from being included in the dump. This is useful when you're moving data to a different database where the same roles or users may not exist.
+
+--no-owner: This prevents commands that would set ownership of objects to be included in the dump. This is useful when you're moving data to a different database where the same roles or users may not exist.
+
+Retrieve the Heroku Postgres database url:
+`heroku config:get DATABASE_URL --app expense-app--backend`
+
+Upload the data to the Heroku Postgres database:
+`pg_restore --verbose --clean --no-acl --no-owner -h my-heroku-host -U my-heroku-user -d my-heroku-database -W < db.dump`
+
+Clean up the local file:
+`rm db.dump`
 
 ---
 
+
 # Security
+
 
 ## Secure Hosting
 
-## Secure Project Architecture
+Heroku provides several security measures to ensure secure hosting for applications. 
 
-## Security measures by Django
+* Infrastructure: Heroku's infrastructure is hosted and managed within Amazon's data centers which continually manages risks and compliance. 
+
+* Data Encription: Heroku provides SSL encription for data in transit and rest. This applies to the database too.
+
+* Security Updates: Heroku automatically applies security patches to the platform's underlying technologies.
 
 
+## Secure Django Application
 
+
+* Environment variables and secrets have never been committed to version control and they are registered as `Config Vars` on Heroku.
+
+* Database Security: Django's Object Relational Model takes care of the integrity and security for all interactions with the database to avoid SQL injection attacks. The database is also protected with a strong password.
+
+* Django's built-in auth and session framework securely handles user authentication and sessions.
+
+* Input Validation: In addition to frontend validations, all inputs are sanitised again in the backend to protect against cross-site scripting (XSS) and other injection attacks.
+
+* CSRF Protection: Django has a built-in protection against Cross Site Request Forgery (CSRF) attacks in the form of CSRF tokens which are used in this app to validate the origins of any "unsafe" requests, such as POST requests.
+
+* `python manage.py check --deploy` command identifies no issues.
+
+* Django has several settings as defaults to increase site security such as  
+    - X_CONTENT_TYPE_OPTIONS = 'nosniff' to protect against as Cross-Site Scripting (XSS) and MIME type confusion attacks
+    - X_FRAME_OPTIONS = 'DENY' to protect against clickjacking attacks by denying the site to be framed.
+    - SESSION_COOKIE_HTTPONLY = True so that client-side JavaScript will not be able to access the session cookie.
+
+---
 
 # Vulnerabilities
 
-1. Malicious users can send unwanted emails, with pictures included, to both the finance team and the email address given in the form.
+1. Malicious users can send unwanted emails, with pictures included, to the finance team and the email address given in the form.
 
 2. Forms can be submitted without limits, resulting in possible service interruptions as well as increased hosting costs.
 
