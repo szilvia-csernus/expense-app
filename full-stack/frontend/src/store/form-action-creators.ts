@@ -50,18 +50,18 @@ export const send = async (
 				dispatch(costFormActions.resetSending());
 				dispatch(
 					errorMessageActions.setMessage(
-						`An unknown error occured, apologies for the inconvenience! ${response.status}`
+						`An unknown error occured, apologies for the inconvenience!`
 					)
 				);
 				dispatch(errorMessageActions.open());
 				// closeAfterTimeout(dispatch);
 			}
 		},
-		(error) => {
+		() => {
 			dispatch(costFormActions.resetSending());
 			dispatch(
 				errorMessageActions.setMessage(
-					`An Unknown error occured, apologies for the inconvenience! ${error}`
+					`An Unknown error occured, apologies for the inconvenience!`
 				)
 			);
 			dispatch(errorMessageActions.open());
