@@ -225,6 +225,7 @@ if 'NO_HTTPS' not in os.environ:
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True  # Also apply to subdomains
     SECURE_HSTS_PRELOAD = True  # Also apply to subsequent requests
 
-    # Ensures cookies are sent over HTTPS
+    # Ensures cookies are sent over HTTPS and, as it's marked as secure, the
+    # browsers also make these cookies invisible in the dev tools.
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True

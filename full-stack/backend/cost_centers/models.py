@@ -6,7 +6,7 @@ class Church(models.Model):
     short_name = models.CharField(max_length=100)
     long_name = models.CharField(max_length=200, null=True, blank=True)
     logo = models.ImageField(upload_to='logos/',
-                             default='logo-placeholder',
+                             null=True,
                              blank=True)
     claims_counter = models.IntegerField(default=0)
     finance_contact_name = models.CharField(max_length=200, null=True,

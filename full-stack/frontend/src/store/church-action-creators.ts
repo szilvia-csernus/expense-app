@@ -9,12 +9,16 @@ export const getChurchDetails = (dispatch: Dispatch, church: string) => {
 			`/api/churches/details/?church=${church}`
 		);
 		const data = await response.json();
-		const { logo, cost_purposes } = data;
+		const cost_purposes = data.cost_purposes;
+		const churchLogo = data.logo;
         if (response.status !== 200) {
             dispatch(churchActions.resetChurch())
-        } else {
+        } else {	
+					const logo = churchLogo
+						? churchLogo
+						: 'https://res.cloudinary.com/dgp5kmp7u/image/upload/v1707902919/media/logos/logo-placeholder.png';
 					dispatch(churchActions.setChurchDetails({ logo, cost_purposes }));
-					
+					console.log("logo: ", logo)
 					// Pre-fetch and cache the logo image before the form gets rendered. While
 					// fetchingInProcess is true, the loader is active on the form.
 					const img = new Image();
