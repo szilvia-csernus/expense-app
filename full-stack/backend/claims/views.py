@@ -69,17 +69,16 @@ def generate_main_message(form):
     return (
         f"Name: {form['name']}\n"
         f"Email: {form['email']}\n"
-        f"Church: {form['church']}\n"
-        f"Purpose: {form['purpose']}\n"
         f"Date of Expense: {form['date']}\n"
         f"Description: {form['description']}\n"
+        f"Purpose: {form['purpose']}\n"
         f"Total: {form['total']}\n"
         f"Bank account: {form['iban']}\n"
-        f"Name of Bank Account Holder: {form['accountName']}\n\n"
+        f"Account Holder: {form['accountName']}\n\n"
     )
 
 
-def generate_message_to_submitter(church, submitter, main_message):
+def generate_message_to_submitter(church, submitter):
     """
     Generate the message to the submitter, using the form data.
     """
@@ -93,8 +92,6 @@ def generate_message_to_submitter(church, submitter, main_message):
         f"{church.finance_contact_name}\n"
         f"Finance Team\n"
         f"{church.long_name}\n\n"
-        f"Ps - the submitted data:\n\n" +
-        main_message
     )
 
 
@@ -229,8 +226,7 @@ def send_expense_form(request):
     # Construct the text messages for the emails.
     main_message = generate_main_message(form)
     message_to_submitter = generate_message_to_submitter(church,
-                                                         form['name'],
-                                                         main_message)
+                                                         form['name'])
     message_to_finance = generate_message_to_finance(main_message)
 
     # Construct the PDF attachment. If the attachment_response is a Response
@@ -243,19 +239,24 @@ def send_expense_form(request):
         attachment = attachment_response
 
     # Create the email message.
-    subject = 'Expense Form ' + counter + ' - ' + form['purpose']
+    subject_for_submitter = 'Expense Form ' + counter + ' '\
+                            + form['description'] + ' ' + form['purpose']
     email_acknowledgement = EmailMessage(
-        subject,
+        subject_for_submitter,
         message_to_submitter,
         settings.DEFAULT_FROM_EMAIL,
-        [form['email']]
+        [form['email']],
+        reply_to=[church.finance_email]
     )
 
+    subject_for_finance = 'EF ' + counter + ' '\
+                          + form['description'] + ' ' + form['purpose']
     email_to_finance = EmailMessage(
-        subject,
+        subject_for_finance,
         message_to_finance,
         settings.DEFAULT_FROM_EMAIL,
-        [church.finance_email]
+        [church.finance_email],
+        reply_to=[form['email']]
     )
 
     try:
@@ -269,9 +270,7 @@ def send_expense_form(request):
                                 buffer_for_attachment.getvalue(),
                                 "application/pdf")
         email_to_finance.send()
-        email_acknowledgement.attach(attachment_name,
-                                     buffer_for_attachment.getvalue(),
-                                     "application/pdf")
+
         email_acknowledgement.send()
 
     except Exception as e:
