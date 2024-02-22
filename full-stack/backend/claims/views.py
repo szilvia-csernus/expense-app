@@ -1,4 +1,4 @@
-# from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.csrf import csrf_protect
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from PIL import Image as PilImage
 from django.template.loader import render_to_string
@@ -203,7 +203,7 @@ def generate_attachment(form):
     return pdf_merge
 
 
-# @csrf_protect
+@csrf_protect
 @api_view(['POST'])
 def send_expense_form(request):
     # Initialize the logger.

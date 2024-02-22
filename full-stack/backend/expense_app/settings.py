@@ -34,10 +34,10 @@ CORS_ALLOWED_ORIGINS = [
     os.getenv("FRONTEND_URL")
 ]
 
-# This setting was needed because the admin panel is proxy_routed to the
-# frontend, and sending requests from here back to the backend are seen
+# This setting was needed for AWS because the admin panel is proxy_routed to
+# the frontend, and sending requests from here back to the backend are seen
 # as cross-site-requests.
-CSRF_TRUSTED_ORIGINS = [os.getenv("FRONTEND_URL")]
+# CSRF_TRUSTED_ORIGINS = [os.getenv("FRONTEND_URL")]
 
 
 # Application definition
