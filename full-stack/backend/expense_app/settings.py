@@ -97,7 +97,7 @@ WSGI_APPLICATION = 'expense_app.wsgi.application'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 
-if 'DEVELOPMENT' in os.environ:
+if 'SQLITE3' in os.environ:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -216,3 +216,15 @@ LOGGING = {
         'level': 'WARNING',
     },
 }
+
+if 'NO_HTTPS' not in os.environ:
+    # Enforces SSL
+    SECURE_SSL_REDIRECT = True
+
+    SECURE_HSTS_SECONDS = 3600  # 1 hour
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True  # Also apply to subdomains
+    SECURE_HSTS_PRELOAD = True  # Also apply to subsequent requests
+
+    # Ensures cookies are sent over HTTPS
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
