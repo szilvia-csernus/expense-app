@@ -36,16 +36,17 @@ def validate_form(request):
           status=400, data={
             "message": "Escaped Frontend validation: File upload required."})
 
-    max_file_size = 5.1 * 1024 * 1024  # 5.1 MB
+    max_total_size = 5.1 * 1024 * 1024  # 5.1 MB
 
-    for file in request.FILES.values():
-        if file.size > max_file_size:
-            return Response(
-              status=400,
-              data={
-                  "message":
-                  f"Escaped Frontend validation: \
-                  File {file.name} is too large."})
+    total_size = sum(file.size for file in request.FILES.values())
+    if total_size > max_total_size:
+        return Response(
+            status=400,
+            data={
+                "message": "Escaped Frontend validation:\
+                The total size of all files exceeds the limit."
+            }
+        )
 
     receipts = [ReceiptUploadsSerializer(
         data={'receipt': request.FILES.get(name)})
