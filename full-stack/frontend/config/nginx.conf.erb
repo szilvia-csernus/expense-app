@@ -67,6 +67,10 @@ http {
             proxy_pass <%= ENV['BACKEND_URL'] %>
         }
 
+		location /admin/ {
+            proxy_pass <%= ENV['BACKEND_URL'] + '/admin/' %>
+        }
+
 		## Define specific behaviors for sub directories and other locations.
 		# location /assets {
 		# 	expires 7d;
