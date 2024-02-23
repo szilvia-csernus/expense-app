@@ -33,14 +33,18 @@ http {
 	default_type application/octet-stream;
 	sendfile on;
 
-	client_body_timeout <%= ENV['NGINX_CLIENT_BODY_TIMEOUT'] || 5 %>;
-	# Must read the body in 5 seconds.
+	client_body_timeout 10s;
+	# Must read the body in 10 seconds.
 
 	server {
 		listen <%= ENV["PORT"] %>;
 		server_name _;
 		keepalive_timeout 5;
-		client_max_body_size <%= ENV['NGINX_CLIENT_MAX_BODY_SIZE'] || 1 %>M;
+		client_max_body_size 10M;
+		client_body_buffer_size 10M;
+
+		proxy_connect_timeout 10s;
+		proxy_read_timeout 10s;
 
 		## HTTPS Only
 		if ($http_x_forwarded_proto != "https") {
@@ -60,7 +64,7 @@ http {
 		}
 
         location /api/ {
-            proxy_pass https://expense-app--backend-00a44ab990b4.herokuapp.com/;
+            proxy_pass <%= ENV['BACKEND_URL'] %>
         }
 
 		## Define specific behaviors for sub directories and other locations.
