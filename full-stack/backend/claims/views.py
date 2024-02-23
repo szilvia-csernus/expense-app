@@ -1,6 +1,6 @@
 from django.views.decorators.csrf import csrf_protect
 from django.core.files.uploadedfile import InMemoryUploadedFile
-from PIL import Image as PilImage
+from PIL import Image as PilImage, ImageOps
 from django.template.loader import render_to_string
 from pypdf import PdfWriter
 from io import BytesIO
@@ -120,6 +120,11 @@ def process_file(file, max_size):
             if isinstance(file, InMemoryUploadedFile):
                 # It's an image. Open it with PIL and resize it.
                 image = PilImage.open(file)
+
+                # Adjust the image data based on the orientation metadata.
+                image = ImageOps.exif_transpose(image)
+
+                # Resize the image while keeping the aspect ratio.
                 image.thumbnail(max_size)
 
                 # Convert the image to PDF and write it to a buffer.
