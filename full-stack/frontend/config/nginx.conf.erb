@@ -67,6 +67,10 @@ http {
 			proxy_pass <%= ENV['BACKEND_URL'] + '/' %>;
 		}
 
+		location /admin/static/ {
+			proxy_pass <%= ENV['BACKEND_URL'] + '/admin/static/' %>;
+		}
+
 		location /admin/ {
 			proxy_pass <%= ENV['BACKEND_URL'] + '/admin/' %>;
 		}
