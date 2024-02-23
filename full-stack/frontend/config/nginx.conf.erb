@@ -54,15 +54,6 @@ http {
 		## Document root
 		root /app/dist;
 
-		location / {
-			## Clean URLs: match on extensionless requests.
-			try_files $uri $uri/ /index.html;
-
-			## Single-page app client-side routing: returns index.html if the requested path doesn't exist.
-			## When enabled, the client-side app must handle its own 404 errors.
-			error_page 404 = /index.html;
-		}
-
 		location /api/ {
 			proxy_pass <%= ENV['BACKEND_URL'] + '/' %>;
 		}
@@ -73,6 +64,15 @@ http {
 
 		location /admin/ {
 			proxy_pass <%= ENV['BACKEND_URL'] + '/admin/' %>;
+		}
+
+		location / {
+			## Clean URLs: match on extensionless requests.
+			try_files $uri $uri/ /index.html;
+
+			## Single-page app client-side routing: returns index.html if the requested path doesn't exist.
+			## When enabled, the client-side app must handle its own 404 errors.
+			error_page 404 = /index.html;
 		}
 
 		## Define specific behaviors for sub directories and other locations.
