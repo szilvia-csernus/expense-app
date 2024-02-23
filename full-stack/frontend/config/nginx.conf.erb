@@ -63,13 +63,13 @@ http {
 			error_page 404 = /index.html;
 		}
 
-        location /api/ {
-            proxy_pass <%= ENV['BACKEND_URL'] %>
-        }
+		location /api/ {
+			proxy_pass <%= ENV['BACKEND_URL'] + '/' %>;
+		}
 
 		location /admin/ {
-            proxy_pass <%= ENV['BACKEND_URL'] + '/admin/' %>
-        }
+			proxy_pass <%= ENV['BACKEND_URL'] + '/admin/' %>;
+		}
 
 		## Define specific behaviors for sub directories and other locations.
 		# location /assets {
