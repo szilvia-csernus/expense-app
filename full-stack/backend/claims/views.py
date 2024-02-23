@@ -226,7 +226,7 @@ def send_expense_form(request):
     counter = str(church.claims_counter)
 
     # Append the logo_url and the counter to the form.
-    form['logo'] = church.logo.url
+    form['logo'] = church.logo.url if church.logo else ""
     form['counter'] = counter
 
     # Construct the text messages for the emails.
