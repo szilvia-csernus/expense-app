@@ -21,8 +21,8 @@ function Home() {
     const dispatch = useAppDispatch();
 
     useEffect(() => {
+        getChurches(dispatch, church)
         church && getChurchDetails(dispatch, church);
-        getChurches(dispatch)
     }, [dispatch, church]);
 
     return (

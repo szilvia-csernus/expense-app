@@ -30,12 +30,19 @@ export const getChurchDetails = (dispatch: Dispatch, church: string) => {
 	return fetchData();
 };
 
-export const getChurches = (dispatch: Dispatch) => {
+export const getChurches = (dispatch: Dispatch, church: string) => {
 	dispatch(churchActions.setFetchingChurchesInProcess(true));
+
 	const fetchData = async () => {
 		const response = await fetch(`/api/churches/names/`);
 		const data = await response.json();
 		const churchList = data.map((church: { short_name: string }) => church.short_name);
+
+		// if initial church is not in the list of churches in the database, reset initial church.
+		if (!churchList.includes(church)) {
+			dispatch(churchActions.resetChurch());
+		}
+
 		dispatch(churchActions.setChurches(churchList));
 		dispatch(churchActions.setFetchingChurchesInProcess(false));
 	};

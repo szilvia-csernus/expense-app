@@ -1,5 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit';
 
+// Read query parameter from url. If there is an "adm" key, set its value as church,
+// otherwise, if there is a "church" key in localStorage, set its value as church,
+// otherwise set church to an empty string.
 function getInitialChurch() {
 	const params = new URLSearchParams(window.location.search);
 	const adm = params.get('adm');
@@ -8,6 +11,7 @@ function getInitialChurch() {
 }
 
 const initialChurch = getInitialChurch();
+localStorage.setItem("church", initialChurch)
 
 // Returns false if no church was selected and neither was a church present in the url 
 const initialStatus =
