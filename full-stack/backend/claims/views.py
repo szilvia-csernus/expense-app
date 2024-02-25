@@ -85,13 +85,13 @@ def generate_message_to_submitter(church, submitter):
     """
     return (
         f"Dear {submitter}, \n\n"
-        f"Thank you for submitting an expense form. "
-        f"We will process it shortly.\n"
-        f"If you don't hear from us, or if the reimbursement doesn't arrive "
-        f"to you within 2 weeks, then please reach out to us at "
+        "Thank you for submitting an expense form. "
+        "We will process it shortly.\n"
+        "If you don't hear from us, or if the reimbursement doesn't arrive "
+        "to you within 2 weeks, then please reach out to us at "
         f"{church.finance_email}.\n\n"
         f"{church.finance_contact_name}\n"
-        f"Finance Team\n"
+        "Finance Team\n"
         f"{church.long_name}\n\n"
     )
 
@@ -101,8 +101,27 @@ def generate_message_to_finance(main_message):
     Generate the message to the finance team, using the form data.
     """
     return (
-        "Expense Form Submission\n\n" +
-        main_message
+        "Expense Form Submission\n\n"
+        f"{main_message}"
+    )
+
+
+def generate_reply_template(church, submitter, main_message):
+    """
+    Generate the reply template for the submitter, to be used after the
+    reimbursement has been made.
+    """
+    return (
+        f"Dear {submitter},\n\n"
+        "Thank you for using your resources for the church. I have "
+        "transferred the reimbursement to your account. If you have any "
+        "questions, then please reach out to us at "
+        f"{church.finance_email}.\n\n"
+        f"{church.finance_contact_name}\n"
+        "Finance Team\n"
+        f"{church.long_name}\n\n"
+        "Ps - the submitted data:\n\n"
+        f"{main_message}"
     )
 
 
@@ -234,6 +253,9 @@ def send_expense_form(request):
     message_to_submitter = generate_message_to_submitter(church,
                                                          form['name'])
     message_to_finance = generate_message_to_finance(main_message)
+    message_template = generate_reply_template(church,
+                                               form['name'],
+                                               main_message)
 
     # Construct the PDF attachment. If the attachment_response is a Response
     # object, meaning there was an error, return this response to the user.
@@ -244,7 +266,7 @@ def send_expense_form(request):
     else:
         attachment = attachment_response
 
-    # Create the email message.
+    # Create the email messages.
     subject_for_submitter = 'Expense Form ' + counter + ' '\
                             + form['description'] + ' ' + form['purpose']
     email_acknowledgement = EmailMessage(
@@ -265,6 +287,16 @@ def send_expense_form(request):
         reply_to=[form['email']]
     )
 
+    subject_for_template = 'Expense Form ' + counter + ' '\
+                           + form['description'] + ' ' + form['purpose']
+    email_template = EmailMessage(
+        subject_for_template,
+        message_template,
+        settings.DEFAULT_FROM_EMAIL,
+        [church.finance_email],
+        reply_to=[form['email']]
+    )
+
     try:
         # Create the final PDF and close the merger.
         buffer_for_attachment = BytesIO()
@@ -278,6 +310,8 @@ def send_expense_form(request):
         email_to_finance.send()
 
         email_acknowledgement.send()
+
+        email_template.send()
 
     except Exception as e:
         logger.error(f"Error sending email from name: {form['name']}, \
