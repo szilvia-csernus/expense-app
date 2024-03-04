@@ -1,69 +1,70 @@
 {
+	"id": "expense-app",
 	"short_name": "Expense App",
 	"name": "Expense App for Redeemer Churches",
 	"description": "Expense Reimbursement App for Redeemer Churches in the Neatherlands",
 	"lang": "en-US",
+	"theme_color": "#000000",
 	"icons": [
 		{
-			"src": "android-36x36.png",
+			"src": "icon-36x36.png",
 			"type": "image/png",
 			"sizes": "36x36",
 			"purpose": "any"
 		},
 		{
-			"src": "android-48x48.png",
+			"src": "icon-48x48.png",
 			"type": "image/png",
 			"sizes": "48x48",
 			"purpose": "any"
 		},
 		{
-			"src": "android-72x72.png",
+			"src": "icon-72x72.png",
 			"type": "image/png",
 			"sizes": "72x72",
 			"purpose": "any"
 		},
 		{
-			"src": "android-96x96.png",
+			"src": "icon-96x96.png",
 			"type": "image/png",
 			"sizes": "96x96",
 			"purpose": "any"
 		},
 		{
-			"src": "android-144x144.png",
+			"src": "icon-144x144.png",
 			"type": "image/png",
 			"sizes": "144x144",
 			"purpose": "any"
 		},
 		{
-			"src": "android-chrome-192x192.png",
+			"src": "icon-192x192.png",
 			"type": "image/png",
 			"sizes": "192x192",
 			"purpose": "any"
 		},
 		{
-			"src": "android-chrome-512x512.png",
+			"src": "icon-512x512.png",
 			"type": "image/png",
 			"sizes": "512x512",
 			"purpose": "any"
 		},
 		{
-			"src": "android-chrome-192x192.png",
+			"src": "icon-square-180x180.png",
 			"type": "image/png",
-			"sizes": "192x192",
+			"sizes": "180x180",
 			"purpose": "maskable"
 		},
 		{
-			"src": "android-chrome-512x512.png",
+			"src": "icon-square-180x180.png",
 			"type": "image/png",
-			"sizes": "512x512",
-			"purpose": "maskable"
+			"sizes": "180x180",
+			"purpose": "any"
 		}
 	],
 	"start_url": "/",
 	"scope": "/",
 	"display": "standalone",
 	"orientation": "portrait",
-	"theme_color": "#000000",
 	"background_color": "#232426",
 	"categories": ["finance"],
 	"launch_handler": {
