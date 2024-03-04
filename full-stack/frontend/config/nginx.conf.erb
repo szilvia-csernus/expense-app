@@ -8,13 +8,13 @@ error_log stderr info;
 # As documented for Nginx, but we still see error during start-up in log:
 # >  nginx: [alert] could not open error log file: open() "./logs/error.log"
 
-worker_processes <%= ENV['NGINX_WORKERS'] || 4 %>;
+worker_processes 4;
 # Heroku dynos have at least 4 cores.
 
 events {
 	use epoll;
 	accept_mutex on;
-	worker_connections <%= ENV['NGINX_WORKER_CONNECTIONS'] || 1024 %>;
+	worker_connections 1024;
 }
 
 http {
