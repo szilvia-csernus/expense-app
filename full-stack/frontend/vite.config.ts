@@ -29,20 +29,6 @@ export default defineConfig({
 				globPatterns: ['**/*.{js,jsx,ts,tsx,css,html,ico,png,webmanifest}'],
 				runtimeCaching: [
 					{
-						urlPattern: /^http:\/\/localhost/i,
-						handler: 'CacheFirst',
-						options: {
-							cacheName: 'landing-page',
-							expiration: {
-								maxEntries: 1,
-								maxAgeSeconds: 60 * 60 * 24 * 7, // 7 days
-							},
-							cacheableResponse: {
-								statuses: [0, 200],
-							},
-						},
-					},
-					{
 						urlPattern: /^https:\/\/res.cloudinary*/i,
 						handler: 'CacheFirst',
 						options: {
@@ -78,6 +64,20 @@ export default defineConfig({
 							expiration: {
 								maxEntries: 10,
 								maxAgeSeconds: 60 * 60 * 24 * 365, // <== 365 days
+							},
+							cacheableResponse: {
+								statuses: [0, 200],
+							},
+						},
+					},
+					{
+						urlPattern: /^https?:\/\//i,
+						handler: 'CacheFirst',
+						options: {
+							cacheName: 'landing-page',
+							expiration: {
+								maxEntries: 1,
+								maxAgeSeconds: 60 * 60 * 24 * 7, // 7 days
 							},
 							cacheableResponse: {
 								statuses: [0, 200],
