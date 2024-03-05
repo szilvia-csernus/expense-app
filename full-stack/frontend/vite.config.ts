@@ -15,6 +15,14 @@ export default defineConfig({
 				changeOrigin: true,
 				rewrite: (path) => path.replace(/^\/api/, ''),
 			},
+			'/static/': {
+				target: 'http://127.0.0.1:8000',
+				changeOrigin: true,
+			},
+			'/admin/': {
+				target: 'http://127.0.0.1:8000',
+				changeOrigin: true,
+			},
 		},
 	},
 	plugins: [
@@ -71,7 +79,13 @@ export default defineConfig({
 						},
 					},
 					{
-						urlPattern: /^https?:\/\//i,
+						urlPattern: new RegExp(`^${process.env.VITE_FRONTEND_URL}/admin/`),
+						handler: 'NetworkOnly',
+					},
+					{
+						urlPattern: new RegExp(
+							`^${process.env.VITE_FRONTEND_URL}(?!/admin/)`
+						),
 						handler: 'CacheFirst',
 						options: {
 							cacheName: 'landing-page',
