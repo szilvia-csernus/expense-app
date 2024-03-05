@@ -20,14 +20,13 @@ export default defineConfig({
 	plugins: [
 		react(),
 		VitePWA({
-			manifest: false,
 			strategies: 'generateSW',
 			registerType: 'autoUpdate',
 			devOptions: {
 				enabled: true,
 			},
 			workbox: {
-				globPatterns: ['**/*.{js,jsx,ts,tsx,css,html,ico,png}'],
+				globPatterns: ['**/*.{js,jsx,ts,tsx,css,html,ico,png,webmanifest}'],
 				runtimeCaching: [
 					{
 						urlPattern: /^http:\/\/localhost/i,
@@ -85,21 +84,81 @@ export default defineConfig({
 							},
 						},
 					},
+				],
+			},
+			manifest: {
+				id: 'expense-app',
+				short_name: 'Expense App',
+				name: 'Expense App for Redeemer Churches',
+				description:
+					'Expense Reimbursement App for Redeemer Churches in the Neatherlands',
+				lang: 'en-US',
+				theme_color: '#000000',
+				icons: [
 					{
-						urlPattern: /^https:\/\/www\.redeemerdelft\.nl\/.*/i,
-						handler: 'CacheFirst',
-						options: {
-							cacheName: 'logo-cache',
-							expiration: {
-								maxEntries: 10,
-								maxAgeSeconds: 60 * 60 * 24 * 365, // <== 365 days
-							},
-							cacheableResponse: {
-								statuses: [0, 200],
-							},
-						},
+						src: 'icon-36x36.png',
+						type: 'image/png',
+						sizes: '36x36',
+						purpose: 'any',
+					},
+					{
+						src: 'icon-48x48.png',
+						type: 'image/png',
+						sizes: '48x48',
+						purpose: 'any',
+					},
+					{
+						src: 'icon-72x72.png',
+						type: 'image/png',
+						sizes: '72x72',
+						purpose: 'any',
+					},
+					{
+						src: 'icon-96x96.png',
+						type: 'image/png',
+						sizes: '96x96',
+						purpose: 'any',
+					},
+					{
+						src: 'icon-144x144.png',
+						type: 'image/png',
+						sizes: '144x144',
+						purpose: 'any',
+					},
+					{
+						src: 'icon-192x192.png',
+						type: 'image/png',
+						sizes: '192x192',
+						purpose: 'any',
+					},
+					{
+						src: 'icon-512x512.png',
+						type: 'image/png',
+						sizes: '512x512',
+						purpose: 'any',
+					},
+					{
+						src: 'icon-square-180x180.png',
+						type: 'image/png',
+						sizes: '180x180',
+						purpose: 'maskable',
+					},
+					{
+						src: 'icon-square-180x180.png',
+						type: 'image/png',
+						sizes: '180x180',
+						purpose: 'any',
 					},
 				],
+				start_url: '/',
+				scope: '/',
+				display: 'standalone',
+				orientation: 'portrait',
+				background_color: '#232426',
+				categories: ['finance'],
+				launch_handler: {
+					client_mode: ['navigate-existing', 'auto'],
+				},
 			},
 		}),
 	],
