@@ -79,12 +79,12 @@ export default defineConfig({
 						},
 					},
 					{
-						urlPattern: new RegExp(`^${process.env.VITE_FRONTEND_URL}/admin/`),
+						urlPattern: new RegExp(`^${process.env.VITE_FRONTEND_URL}/admin/.*$`),
 						handler: 'NetworkOnly',
 					},
 					{
 						urlPattern: new RegExp(
-							`^${process.env.VITE_FRONTEND_URL}(?!/admin/)`
+							`^${process.env.VITE_FRONTEND_URL}(?!/admin/.*$)`
 						),
 						handler: 'CacheFirst',
 						options: {
