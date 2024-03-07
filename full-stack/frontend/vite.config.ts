@@ -32,9 +32,10 @@ export default defineConfig({
 			registerType: 'autoUpdate',
 			devOptions: {
 				enabled: true,
-			},
+			},			
 			workbox: {
 				globPatterns: ['**/*.{js,jsx,ts,tsx,css,html,ico,png,webmanifest}'],
+				navigateFallbackDenylist: [/^\/admin/],
 				runtimeCaching: [
 					{
 						urlPattern: /^https:\/\/res.cloudinary*/i,
@@ -42,8 +43,8 @@ export default defineConfig({
 						options: {
 							cacheName: 'cost-center-logos',
 							expiration: {
-								maxEntries: 1,
-								maxAgeSeconds: 60 * 60 * 24 * 7, // 7 days
+								maxEntries: 20,
+								maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
 							},
 							cacheableResponse: {
 								statuses: [0, 200],
@@ -79,24 +80,31 @@ export default defineConfig({
 						},
 					},
 					{
-						urlPattern: new RegExp(`^${process.env.VITE_FRONTEND_URL}/admin/.*$`),
-						handler: 'NetworkOnly',
-					},
-					{
-						urlPattern: new RegExp(
-							`^${process.env.VITE_FRONTEND_URL}(?!/admin/.*$)`
-						),
-						handler: 'CacheFirst',
+						urlPattern: ({ url }) => url.pathname.startsWith('/api/churches/'),
+						handler: 'NetworkFirst',
 						options: {
-							cacheName: 'landing-page',
+							cacheName: 'churches-data',
 							expiration: {
-								maxEntries: 1,
-								maxAgeSeconds: 60 * 60 * 24 * 7, // 7 days
+								maxEntries: 20,
+								maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
 							},
 							cacheableResponse: {
 								statuses: [0, 200],
 							},
 						},
+					},
+					{
+						handler: 'NetworkOnly',
+						urlPattern: /\/api\/claims\/send_expense_form/,
+						method: 'POST',
+						options: {
+							backgroundSync: {
+								name: 'sendExpenseFormQueue',
+								options: {
+									maxRetentionTime: 60 * 24 * 2 // 2 days
+								}
+							}
+						}
 					},
 				],
 			},
