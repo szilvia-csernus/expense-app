@@ -6,6 +6,7 @@ import Modal from './Modal';
 
 const ErrorMessage = () => {
 	const dispatch = useAppDispatch();
+	const title = useAppSelector(state => state.errorMessage.title)
 	const message = useAppSelector(state => state.errorMessage.message)
 	const clickHandler = () => {
 		dispatch(errorMessageActions.close());
@@ -15,13 +16,18 @@ const ErrorMessage = () => {
 	return (
 		<Modal>
 			<div className={classes.messageContent}>
-				<h2>ERROR</h2>
+				<h2>{title}</h2>
 				<p>{message}</p>
 				<br />
 				<br />
-				<SecondaryButton onClick={clickHandler}>
-					Return to Form
-				</SecondaryButton>
+				{title === 'ERROR' && (
+					<SecondaryButton onClick={clickHandler}>
+						Return to Form
+					</SecondaryButton>
+				)}
+				{title === 'OFFLINE' && (
+					<SecondaryButton onClick={clickHandler}>New Form</SecondaryButton>
+				)}
 			</div>
 		</Modal>
 	);

@@ -4,6 +4,7 @@ const errorMessageSlice = createSlice({
 	name: 'errorMessage',
 	initialState: {
 		status: false,
+		title: '',
 		message: ''
 	},
 	reducers: {
@@ -14,10 +15,12 @@ const errorMessageSlice = createSlice({
 			state.status = false;
 		},
 		setMessage(state, action) {
-			state.message = action.payload
+			state.title = action.payload.title;
+			state.message = action.payload.message;
 		},
 		resetMessage(state) {
-			state.message = ''
+			state.title = '';
+			state.message = '';
 		}
 	},
 });
