@@ -242,6 +242,10 @@ def send_expense_form(request):
 
     # Retrieve the church from the database.
     church = get_object_or_404(Church, short_name=form['church'])
+    if church.finance_email is None:
+        return Response(status=400, data={
+            "message": "Error retrieving church data."})
+
     counter = str(church.claims_counter)
 
     # Append the logo_url and the counter to the form.
