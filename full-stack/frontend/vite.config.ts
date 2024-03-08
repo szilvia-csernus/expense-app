@@ -32,9 +32,11 @@ export default defineConfig({
 			registerType: 'autoUpdate',
 			devOptions: {
 				enabled: true,
-			},			
+			},
 			workbox: {
 				globPatterns: ['**/*.{js,jsx,ts,tsx,css,html,ico,png,webmanifest}'],
+				skipWaiting: true,
+				clientsClaim: true,
 				navigateFallbackDenylist: [/^\/admin/],
 				runtimeCaching: [
 					{
@@ -101,10 +103,10 @@ export default defineConfig({
 							backgroundSync: {
 								name: 'sendExpenseFormQueue',
 								options: {
-									maxRetentionTime: 60 * 24 * 2 // 2 days
-								}
-							}
-						}
+									maxRetentionTime: 60 * 24 * 2, // 2 days
+								},
+							},
+						},
 					},
 				],
 			},
