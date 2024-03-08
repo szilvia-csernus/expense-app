@@ -10,18 +10,14 @@ class CostPurposeSerializer(serializers.ModelSerializer):
 
 class ChurchDetailsSerializer(serializers.ModelSerializer):
     short_name = serializers.CharField()
-    long_name = serializers.CharField()
     logo = serializers.ImageField()
     cost_purposes = CostPurposeSerializer(many=True, read_only=True)
-    claims_counter = serializers.IntegerField()
-    finance_contact_name = serializers.CharField()
-    finance_email = serializers.EmailField()
 
     class Meta:
         model = Church
-        fields = ['short_name', 'long_name', 'logo',
-                  'claims_counter', 'finance_contact_name',
-                  'finance_email', 'cost_purposes']
+        fields = ['short_name',
+                  'logo',
+                  'cost_purposes']
 
 
 class ChurchSerializer(serializers.ModelSerializer):
