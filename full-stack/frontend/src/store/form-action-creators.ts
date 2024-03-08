@@ -48,7 +48,7 @@ export const send = async (
 				dispatch(errorMessageActions.open());
 				// closeAfterTimeout(dispatch);
 				resetFileUploader();
-			} else if (response.status === 400 || response.status === 404 || response.status === 500) {
+			} else if (response.status === (400 || 404 || 500)) {
 				dispatch(costFormActions.resetSending());
 				dispatch(
 					errorMessageActions.setMessage(
