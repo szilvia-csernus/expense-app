@@ -1,17 +1,22 @@
 from django.views.decorators.csrf import csrf_protect
 from django.core.files.uploadedfile import InMemoryUploadedFile
-from PIL import Image as PilImage, ImageOps
+from django.db import transaction
 from django.template.loader import render_to_string
-from pypdf import PdfWriter
-from io import BytesIO
 from django.core.mail import EmailMessage
 from django.conf import settings
+from django.shortcuts import get_object_or_404
+
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+
+from PIL import Image as PilImage, ImageOps
+from pypdf import PdfWriter
+from io import BytesIO
 from xhtml2pdf import pisa
-from django.shortcuts import get_object_or_404
+
 from .serializers import ExpenseSerializer, ReceiptUploadsSerializer
 from cost_centers.models import Church
+
 import logging
 
 
@@ -317,6 +322,11 @@ def send_expense_form(request):
 
         email_template.send()
 
+        # After the email has been sent, increment the counter
+        with transaction.atomic():
+            church.refresh_from_db()
+            church.increment_claims_counter()
+
     except Exception as e:
         logger.error(f"Error sending email from name: {form['name']}, \
             email: {form['email']}. Error: {e}")
@@ -327,15 +337,6 @@ def send_expense_form(request):
         # This code will be executed whether an exception occurs or not
         buffer_for_attachment.close()
         attachment.close()
-
-    try:
-        # After the email has been sent, increment the counter
-        church.increment_claims_counter()
-    except Exception as e:
-        # Even if the counter wasn't incremented, the email was sent, so we
-        # return a 200 status code.
-        logger.error(f"Error incrementing {form['church']} counter: {e}")
-        return Response(status=200)
 
     logger.warning(
         f"Email sent for expense form {counter} to {form['email']}" +
