@@ -25,7 +25,7 @@ const ErrorMessage = () => {
 						Return to Form
 					</SecondaryButton>
 				)}
-				{title === 'OFFLINE' && (
+				{title === "YOU'RE OFFLINE" && (
 					<SecondaryButton onClick={clickHandler}>New Form</SecondaryButton>
 				)}
 			</div>

@@ -73,18 +73,31 @@ export const send = async (
 		},
 		() => {
 			dispatch(costFormActions.resetSending());
-			dispatch(
-				errorMessageActions.setMessage({
-					title: 'OFFLINE',
-					message: `It seems you're currently offline. We will try to send your 
-					form in the next 48 hours if your network recovers. 
-					If you don't get a confirmation email during this period, 
-					please try submitting your form again.`,
-				})
-			);
-			dispatch(errorMessageActions.open());
-			// closeAfterTimeout(dispatch);
-			resetForm();
+			if ('serviceWorker' in navigator && 'SyncManager' in window) {
+				dispatch(
+					errorMessageActions.setMessage({
+						title: "YOU'RE OFFLINE",
+						message: `It seems you have no network connection. We 
+						will attempt to resend your form in the next 48 hours 
+						if your network recovers during this time. However, 
+						if you don't receive a confirmation email within this period, 
+						please try resubmitting your form.`,
+					})
+				);
+				dispatch(errorMessageActions.open());
+				// closeAfterTimeout(dispatch);
+				resetForm();
+			} else {
+				dispatch(
+					errorMessageActions.setMessage({
+						title: 'ERROR',
+						message: `It seems you have no network connection. Please try 
+						resubmitting your form when your network recovers.`,
+					})
+				);
+				dispatch(errorMessageActions.open());
+			}
+			
 		}
 	);
 	return result;
