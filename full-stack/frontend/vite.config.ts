@@ -83,7 +83,7 @@ export default defineConfig({
 					},
 					{
 						urlPattern: ({ url }) => url.pathname.startsWith('/api/churches/'),
-						handler: 'NetworkFirst',
+						handler: 'StaleWhileRevalidate',
 						options: {
 							cacheName: 'churches-data',
 							expiration: {
