@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import useInput, { type ValidateType } from '../Hooks/use-input';
 import { SubmitButton } from './Buttons';
 import FileUploader from './FileUploader';
-import { send } from '../store/form-action-creators';
+import { noNetworkError, send } from '../store/form-action-creators';
 import { useAppSelector } from '../store/index';
 import { costFormActions } from '../store/cost-form-slice';
 import { churchActions } from '../store/church-slice';
@@ -193,7 +193,18 @@ const CostForm = () => {
 				setTotalFileSize(0);
 			};
 
-			send(dispatch, formData, resetForm, resetFileUploader);
+			// We check if the user is using an IOS device. We need to check this
+			// as the backgroundSync is inconsistent on IOS and as such we
+			// don't want to send the form if the user is offline.
+			// This piece of code can be changed once backgroundSync is fully suppported on
+			// these devices.
+			const isIOS = /iPad|iPhone/.test(navigator.userAgent);
+			console.log("isIOS: ", isIOS);
+			if (isIOS && !navigator.onLine) {
+				noNetworkError(dispatch)
+			} else {
+				send(dispatch, formData, resetForm, resetFileUploader);
+			}
 
 			dispatch(costFormActions.resetSubmitting());
 		}
@@ -303,9 +314,9 @@ const CostForm = () => {
 								<p className={classes.labelSubText}>
 									Your Selected Church is <strong>{churchValue}</strong>. Is
 									this not your church?{' '}
-									<a onClick={handleSelectChurch} className={classes.linkText}>
+									<span onClick={handleSelectChurch} className={classes.linkText}>
 										Change it here.
-									</a>
+									</span>
 								</p>
 
 								{/* Purpose  */}
