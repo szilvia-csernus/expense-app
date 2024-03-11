@@ -1,5 +1,7 @@
 # Expense App
 
+[![DeepScan grade](https://deepscan.io/api/teams/23376/projects/26640/branches/850430/badge/grade.svg)](https://deepscan.io/dashboard#view=project&tid=23376&pid=26640&bid=850430)
+
 Full-stack web application using `Django REST` framework for backend, `postgreSQL` for database and `ReactJS + Typescript @vite` for frontend. Created for streamlining the expense reinbursement process for church members of Redeemer Churches and connected organisations in the Neatherlands.
 
 Church members frequently pay for goods and services for the church's benefit which they can later submit for reimbursement. In the past, this process involved lots of administration from both members and admins, which church leaders wished to reduce. An earlier solution to this problem, implemented by Redeemer International Church Rotterdam, was a WordPress website, which allowed users to upload the receipts alongside their details into a form to be sent to the finance team via email. While this solution helped the end users, the finance team had more work with converting the incoming image files, many times in different file formats into one pdf document. Other churches faced similar problems, so a universal solution was needed.
@@ -43,7 +45,7 @@ As this app is a `Progressive Web App`, all frontend content is cached in the br
     # un-comment this if you want to use the the local Sqlite3 database.
     # SQLITE3=True
 
-    # This setting to be used if SQLITE3=True is commented out
+    # This setting is used if SQLITE3=True is commented out
     DATABASE_URL=postgres://<username>:<password>@<host>/<dbname>
 
     CLOUDINARY_URL=my-cloudinary-url
@@ -144,6 +146,30 @@ In the local SQLite3 database, I created the superuser with django's CLI:
 
 ---
 
+## Deployment of the Test Environment on Heroku:
+
+1. Create an app for testing the backend: `test-expense-app-backend`
+2. Add the Config Vars, including the test database's url, under the `DATABASE_URL` url environment variable
+3. Label the new app: `heroku git:remote -a test-expense-app-backend -r heroku-backend-test`
+4. Deploy the test backend: `git subtree push --prefix full-stack/backend heroku-backend-test main`
+
+5. Create an app for testing the frontend: `test-expense-app-frontend`
+6. Add the `BACKEND_URL` url as a Config Var
+7. Label the new app: `heroku git:remote -a test-expense-app-frontend -r heroku-frontend-test`
+8. Deploy the test backend: `git subtree push --prefix full-stack/frontend heroku-frontend-test main`
+9. Add the Node.js buildback as the 1st step for deployment: `heroku buildpacks:add heroku/nodejs --index 1 --app test-expense-app-frontend`
+10. Add the 2nd step for nginx: `heroku buildpacks:add heroku-community/nginx --index 2 --app test-expense-app-frontend`
+11. Push: `git subtree push --prefix full-stack/frontend heroku-frontend-test main`
+
+
+## Accessing the Logfiles
+
+Heroku retains logs for a period of 1 week, however, this is not guarantied. 
+Currently, there is no log service set up for this application. 
+Access the logfiles through the Heroku CLI with:
+
+`heroku logs --app test-expense-app-backend`
+
 # Deployment for AWS Elastic Container Registry (ECR) and AWS Elastic Container Services (ECS)
 
 
@@ -155,7 +181,7 @@ For deployment to AWS ECS, `Docker` was needed to run the backend and frontend i
 
 For deployment, I created `Dockerfiles` to containerize the project. The images that are used for deployment are created with `docker-compose`. The `docker-compose.aws_local.yml` file allows to build the images and try out the running containers locally before uploading the images to AWS Elastic Container Registry.
 
-    The backend image provides blueprint for the following:
+    The backend image provides blueprint for the followings:
 
         - Using Python on Linux-alpine as a base image
         - Installing all dependencies,
@@ -185,7 +211,7 @@ For deployment, I created `Dockerfiles` to containerize the project. The images 
     `docker-compose -p local-expense-app -f docker-compose.aws_local.yml up --build`. 
 
     This buils all the necessary docker images and also runs the docker containers. 
-    - The forntend being served on port 80 `http://localhost`.
+    - The forntend will be served on port 80 `http://localhost`.
     - The backend on port 8000 `http://localhost:8000`.
 
 * To stop the containers: `CTRL + C`
