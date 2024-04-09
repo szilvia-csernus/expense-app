@@ -7,7 +7,6 @@ from .views import home
 urlpatterns = [
     path('', home),
     path('admin/', admin.site.urls),
-    path('profiles/', include('profiles.urls')),
     path('claims/', include('claims.urls')),
     path('churches/', include('cost_centers.urls')),
 ]

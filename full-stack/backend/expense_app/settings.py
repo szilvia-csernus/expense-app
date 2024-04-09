@@ -7,9 +7,6 @@ import dj_database_url
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# The .env file will only be loaded if the project is used without Docker.
-# If Docker is used, the DJANGO_ENV environment variable will be loaded from
-# the docker-compose.dev.yml or docker-compose.prod.yml files.
 load_dotenv(os.path.join(BASE_DIR, '.env'))
 
 # Quick-start development settings - unsuitable for production
@@ -54,8 +51,6 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',  # new
 
-    'custom_commands',
-    'profiles',
     'cost_centers',
     'claims',
 ]
@@ -109,18 +104,6 @@ else:
     DATABASES = {
         'default': dj_database_url.parse(os.environ.get('DATABASE_URL', ''))
     }
-
-    # This config was used for Docker container-based postgres database.
-    # DATABASES = {
-    #     'default': {
-    #         'ENGINE': 'django.db.backends.postgresql',
-    #         'NAME': os.getenv("POSTGRES_DB"),
-    #         'USER': os.getenv("POSTGRES_USER"),
-    #         'PASSWORD': os.getenv("POSTGRES_PASSWORD"),
-    #         'HOST': os.getenv("POSTGRES_HOST"),
-    #         'PORT': '5432'  # default postgres port
-    #     }
-    # }
 
 
 # Password validation
