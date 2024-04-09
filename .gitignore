@@ -7,3 +7,5 @@ __pycache__
 .env.prod
 *.sqlite3
 *db
+*.DS_Store
+MY-NOTES.md
