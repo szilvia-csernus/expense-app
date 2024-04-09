@@ -6,15 +6,13 @@ Full-stack web application using `Django REST` framework for backend, `postgreSQ
 
 Church members frequently pay for goods and services for the church's benefit which they can later submit for reimbursement. In the past, this process involved lots of administration from both members and admins, which church leaders wished to reduce. An earlier solution to this problem, implemented by Redeemer International Church Rotterdam, was a WordPress website, which allowed users to upload the receipts alongside their details into a form to be sent to the finance team via email. While this solution helped the end users, the finance team had more work with converting the incoming image files, many times in different file formats into one pdf document. Other churches faced similar problems, so a universal solution was needed.
 
-This app allows the end-users to upload their expense forms to any of the listed churches / organisations, attaching the receipts in various image or pdf formats. The incoming forms and the receipts are converted to one multi-page pdf document, and sent to the respective finance teams.
+This app allows the end-users to submit their expense forms to any of the subscribed churches / organisations, attaching the receipts in various image or pdf formats. The incoming forms and the receipts are converted to one multi-page pdf document, and sent to the respective finance teams.
 
 Admins can register new churches or organisations. In addition to the church's name and finance teams' contact details, they can upload the organisation's logo which makes the forms more recognisable by end users.
 
-The project is currently deployed on `Heroku`. The backend and frontend are in separate dynos and the PostgreSQL database is running in a managed postgresql service. Emails are sent with Gmail's SMTP server, the images (church logos) are stored on `Cloudinary`. 
+The project is currently deployed on `Heroku`. The backend and frontend are in separate dynos and the PostgreSQL database is running in a managed postgresql database. Emails are sent with Gmail's SMTP server, the images (church logos) are stored on `Cloudinary`. 
 
-Originally, the app was deployed on `AWS Elastic Container Service (Fargate Spot)`, the Postgresql database on `AWS Relational Database Service (RDS)`, but later on it was migrated over to Heroku mainly for cost reasons.
-
-This documentation provides instructions for both Heroku and AWS ECS deployments.
+Originally, the app was deployed on `AWS Elastic Container Service (Fargate Spot)`, the Postgresql database on `AWS Relational Database Service (RDS)`, but later on it was migrated over to Heroku mainly for cost reasons. The documentation for AWS ECS deployment alongside with the dockerfiles can be found on the `docker-aws` branch.
 
 
 ---
@@ -146,7 +144,7 @@ In the local SQLite3 database, I created the superuser with django's CLI:
 
 ---
 
-## Deployment of the Test Environment on Heroku:
+## Deployment of the Test Environment on Heroku
 
 1. Create an app for testing the backend: `test-expense-app-backend`
 2. Add the Config Vars, including the test database's url, under the `DATABASE_URL` url environment variable

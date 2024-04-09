@@ -132,12 +132,6 @@ export default defineConfig({
 						purpose: 'any',
 					},
 					{
-						src: 'icon-72x72.png',
-						type: 'image/png',
-						sizes: '72x72',
-						purpose: 'any',
-					},
-					{
 						src: 'icon-96x96.png',
 						type: 'image/png',
 						sizes: '96x96',

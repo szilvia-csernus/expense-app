@@ -24,7 +24,7 @@ DEBUG = os.getenv('DEBUG') == 'True'
 
 # This is a list of strings representing the host/domain names that Django
 # can serve. This is a security measure to prevent HTTP Host header attacks.
-ALLOWED_HOSTS = [os.getenv("BACKEND_HOST")]
+ALLOWED_HOSTS = [os.getenv("BACKEND_HOST"), "localhost"]
 
 # This is a list of origins that are authorized to make cross-origin requests.
 # Cross-Origin Resource Sharing (CORS) is a mechanism that allows many
@@ -34,9 +34,9 @@ CORS_ALLOWED_ORIGINS = [
     os.getenv("FRONTEND_URL")
 ]
 
-# This setting was needed for AWS and Heroku because the admin panel is
-# proxy_routed to the frontend, and sending requests from here back to the
-# backend are seen as cross-site-requests.
+# This setting is needed if the frontend sends POST requests to the backend.
+# Our frontend and backend are under different domains (unless we change it
+# later) this setting is necessary.
 CSRF_TRUSTED_ORIGINS = [os.getenv("FRONTEND_URL")]
 
 
@@ -161,8 +161,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'), )  # has to be a tuple
 
+# for WhiteNoise to serve static files in production with 'collectstatic'
+STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'), )  # has to be a tuple
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
