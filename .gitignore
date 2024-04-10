@@ -9,3 +9,4 @@ __pycache__
 *db
 *.DS_Store
 MY-NOTES.md
+*/.vite/
