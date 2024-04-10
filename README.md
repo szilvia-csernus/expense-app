@@ -23,9 +23,9 @@ I used VSCode on MacOS to develop this project locally. For the backend, I used 
 
 ## Backend
 
-For the virtual environment, assuming `python3` is installed, create a virtual environment in the root folder by running `python -m venv venv`. Activate the environment in the workspace in VSCode by selecting this newly created environment with either VSCode's prompt or the 'Python: Select Environment' command. (shift+cmd+P). If this is not an option, you can activate it with the `source venv/bin/activate` command. (venv) will appear in front of the prompt.
+For the virtual environment, assuming `python3` is installed, create a virtual environment in the root folder by running `python -m venv venv`. Activate the environment in the workspace in VSCode by selecting this newly created environment with either VSCode's prompt or the 'Python: Select Environment' command. (shift+cmd+P). If this is not an option, activate venv with the `source venv/bin/activate` command. (venv) should appear in front of the prompt.
 
-After cloning the project, navigate to the `backend` folder, install all dependencies with `pip install -r requirements.txt` and then run `python manage.py runserver`. 
+After cloning the project, navigate to the `backend` folder, install all dependencies with `pip install -r requirements.txt` and then run `python manage.py runserver` to start the development server.
 
 ## Frontend
 
@@ -70,6 +70,8 @@ In the local SQLite3 database, I created the superuser with django's CLI:
 
 # Deployment with Heroku
 
+I first deployed the project manually, later created CI/CD workflows with Github Actions. (See )
+
 
 ## Backend
 
@@ -92,7 +94,7 @@ In the local SQLite3 database, I created the superuser with django's CLI:
 
 7. Push the content of the backend folder to this remote repo:
 
-    `git subtree push --prefix full-stack/backend heroku-backend main`
+    `git subtree push --prefix backend heroku-backend main`
 
 8. Create a superuser for the new database:
 
@@ -100,7 +102,7 @@ In the local SQLite3 database, I created the superuser with django's CLI:
 
 9. To re-deploy any previously committed code, run:
 
-    `git subtree push --prefix full-stack/backend heroku-backend main`
+    `git subtree push --prefix backend heroku-backend main`
 
     from the root (expense-app) directory.
 
@@ -131,6 +133,10 @@ In the local SQLite3 database, I created the superuser with django's CLI:
 
 8. To push only the frontend folder into this heroku repo (which will start up the build & deployment process):
 
-    `git subtree push --prefix full-stack/frontend heroku-frontend main`
+    `git subtree push --prefix frontend heroku-frontend main`
 
 
+
+# CI/CD with Github Actions
+
+I created two workflows to automate the deployment process. One for the test environment (`test` branch) and one for production (`main` branch). Every 'push' to the these branches initiate the deployment processes respectively. The details of these actions can be found in the `.github/worflows` folder.
