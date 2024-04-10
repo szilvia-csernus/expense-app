@@ -23,7 +23,7 @@ I used VSCode on MacOS to develop this project locally. For the backend, I used 
 
 ## Backend
 
-For the virtual environment, assuming `python3` is installed, run `python -m venv venv`, then activate the environment with either VSCode's prompt or with `source venv/bin/activate`. (venv) will appear in front of the prompt.
+For the virtual environment, assuming `python3` is installed, create a virtual environment in the root folder by running `python -m venv venv`. Activate the environment in the workspace in VSCode by selecting this newly created environment with either VSCode's prompt or the 'Python: Select Environment' command. (shift+cmd+P). If this is not an option, you can activate it with the `source venv/bin/activate` command. (venv) will appear in front of the prompt.
 
 After cloning the project, navigate to the `backend` folder, install all dependencies with `pip install -r requirements.txt` and then run `python manage.py runserver`. 
 
