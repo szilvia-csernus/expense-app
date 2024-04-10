@@ -19,7 +19,7 @@ Originally, the app was deployed on `AWS Elastic Container Service (Fargate Spot
 
 # Local development
 
-I used VSCode on MacOS to develop this project locally. For the backend, I used Python's venv package to create a virtual environment and utilised django's built in development server. For the database, I initially used SQLite3 then later moved on to AWS RDS postgresql database. For the frontend, I used @vite's built in development server to serve the React-Typescript code.
+I used VSCode on MacOS to develop this project locally. For the backend, I used Python's venv package to create a virtual environment and utilised django's built in development server. For the database, I initially used SQLite3 then later moved on to managed, cloud-based database. For the frontend, I used @vite's built in development server to serve the React-Typescript code.
 
 ## Backend
 
@@ -54,7 +54,9 @@ As this app is a `Progressive Web App`, you need to adjust the settings in DevTo
     EMAIL_HOST_USER=my-email-host-user
     EMAIL_HOST_PASS=my-email-host-users-password
 
-    BACKEND_HOST=127.0.0.1  # this should match the port where the gunicorn server started. Could be 'localhost' too.
+    # BACKEND_HOST should match the port where the gunicorn server started.
+    # Could be 'localhost' too.
+    BACKEND_HOST=127.0.0.1  
     FRONTEND_URL=http://localhost:5173
 
     ```
@@ -70,6 +72,8 @@ In the local SQLite3 database, I created the superuser with django's CLI:
 
 
 ## Backend
+
+0. Prerequisite: [Heroku CLI](https://devcenter.heroku.com/articles/heroku-cli) needs to be installed.
 
 1. Create an app on Heroku: Click on `Create App`
 
