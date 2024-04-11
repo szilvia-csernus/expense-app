@@ -6,16 +6,24 @@ import { createSlice } from '@reduxjs/toolkit';
 function getInitialChurch() {
 	const params = new URLSearchParams(window.location.search);
 	const adm = params.get('adm');
-	const localChurch = localStorage.getItem('church') || '';
-	return adm !== null ? adm : localChurch;
+	let localChurch = '';
+    try {
+        localChurch = localStorage.getItem('church') || '';
+    } catch {
+				localChurch = '';
+    }
+    return adm !== null ? adm : localChurch;
 }
 
-const initialChurch = getInitialChurch();
-localStorage.setItem("church", initialChurch)
+let initialChurch = getInitialChurch();
+try {
+    localStorage.setItem("church", initialChurch);
+} catch (e) {
+	console.error('Failed to set church in localStorage:', e);
+}
 
 // Returns false if no church was selected and neither was a church present in the url 
-const initialStatus =
-	initialChurch === null || initialChurch === '';
+const initialStatus = initialChurch === '';
 
 const churchSlice = createSlice({
 	name: 'church',
