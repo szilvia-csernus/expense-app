@@ -5,6 +5,8 @@ on:
     branches: [ test ]
     paths-ignore:
       - 'README.md'
+      - .gitignore
+      - readme-images/**
 
 jobs:
   deploy:
