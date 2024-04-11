@@ -54,6 +54,22 @@ The app is a `Progressive Web App (PWA)`, meaning it is installable on any deskt
 As per the requirement of the Rotterdam Finance Team, the app does not retain any end-user or expense data. The database only stores the required data of churches/organisations that are required to send the generated documents.
 
 
+Email authentication / registration has purposefully not been implemented in order to make the user experience as smooth as possible. This requirement was stronger than the potential risk of unauthenticated usage, however, this risk is reviewed periodically.
+
+---
+
+# Feedback
+
+We welcome any feedback you may have! Please send your message to [this email](mailto:benches.dory_0b@icloud.com)!
+
+
+---
+
+# Collaboration
+
+
+We welcome new contributors! If you have the time and courage to improve this app or have other suggestions, please reach out to us on [this email](mailto:benches.dory_0b@icloud.com)!
+
 
 ---
 
