@@ -21,7 +21,7 @@ const CostForm = () => {
 	const [formValid, setFormValid] = useState(false);
 	// file uploads are not allowed to be stored in redux store
 	// https://redux-toolkit.js.org/usage/usage-guide#working-with-non-serializable-data
-	// however, the solution above did not work for me, so I am using useState here
+	// however, the solution above did not work for me hence I'm using useState here
 	const [selectedFile, setSelectedFile] = useState<File | null>(null);
 	const [fileError, setFileError] = useState<string | boolean>(false);
 	const [fileList, setFileList] = useState<File[] | []>([]);
@@ -199,7 +199,6 @@ const CostForm = () => {
 			// This piece of code can be changed once backgroundSync is fully suppported on
 			// these devices.
 			const isIOS = /iPad|iPhone/.test(navigator.userAgent);
-			console.log("isIOS: ", isIOS);
 			if (isIOS && !navigator.onLine) {
 				noNetworkError(dispatch)
 			} else {
