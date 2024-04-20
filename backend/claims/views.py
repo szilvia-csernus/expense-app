@@ -113,8 +113,8 @@ def generate_message_to_finance(main_message):
 
 def generate_reply_template(church, submitter, main_message):
     """
-    Generate the reply template for the submitter, to be used after the
-    reimbursement has been made.
+    Generate the reply template for the submitter, to be used by the
+    finance team, after the reimbursement has been made.
     """
     return (
         f"Dear {submitter},\n\n"
