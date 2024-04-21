@@ -9,8 +9,8 @@ class ExpenseSerializer(serializers.Serializer):
     date = serializers.DateField()
     description = serializers.CharField(max_length=200)
     total = serializers.CharField(max_length=10)
-    iban = serializers.CharField(max_length=34, required=False)
-    accountName = serializers.CharField(max_length=200, required=False)
+    iban = serializers.CharField(max_length=34, required=False, allow_blank=True)
+    accountName = serializers.CharField(max_length=200, required=False, allow_blank=True)
 
 
 class ReceiptUploadsSerializer(serializers.Serializer):
