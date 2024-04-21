@@ -3,7 +3,7 @@ from django.core.mail import EmailMessage
 from unittest.mock import patch, MagicMock
 from rest_framework.response import Response
 from cost_centers.models import Church
-from .views import send_expense_form
+from claims.views import send_expense_form
 from django.core.files.uploadedfile import SimpleUploadedFile
 import logging
 

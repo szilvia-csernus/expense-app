@@ -2,7 +2,7 @@ import unittest
 from django.core.files.uploadedfile import SimpleUploadedFile
 from PIL import Image
 from io import BytesIO
-from .utils import process_file
+from claims.utils import process_file
 
 class TestProcessFile(unittest.TestCase):
     def test_process_image_file(self):

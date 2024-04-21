@@ -1,6 +1,6 @@
 from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework.test import APITestCase
-from .serializers import ExpenseSerializer, ReceiptUploadsSerializer
+from claims.serializers import ExpenseSerializer, ReceiptUploadsSerializer
 
 class ExpenseSerializerTestCase(APITestCase):
     def test_valid_data(self):

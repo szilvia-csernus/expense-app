@@ -2,7 +2,7 @@ import unittest
 from unittest.mock import patch, MagicMock
 from django.test import RequestFactory
 from rest_framework.response import Response
-from .utils import generate_attachment
+from claims.utils import generate_attachment
 from pypdf import PdfWriter
 from io import BytesIO
 

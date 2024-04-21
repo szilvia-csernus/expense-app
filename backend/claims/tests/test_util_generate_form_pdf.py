@@ -3,7 +3,7 @@ from django.test import RequestFactory
 from rest_framework.response import Response
 from io import BytesIO
 from unittest.mock import patch
-from .utils import generate_form_pdf
+from claims.utils import generate_form_pdf
 
 class TestGenerateFormPdf(unittest.TestCase):
     def setUp(self):
