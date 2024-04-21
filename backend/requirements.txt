@@ -23,6 +23,7 @@ packaging==23.2
 pillow==10.3.0
 psycopg2-binary==2.9.9
 pycparser==2.21
+Pygments==2.17.2
 pyHanko==0.21.0
 pyhanko-certvalidator==0.26.3
 pypdf==4.0.0
@@ -32,6 +33,7 @@ python-dotenv==1.0.0
 pytz==2023.3.post1
 PyYAML==6.0.1
 qrcode==7.4.2
+redgreenunittest==0.1.1
 reportlab==4.0.9
 requests==2.31.0
 six==1.16.0

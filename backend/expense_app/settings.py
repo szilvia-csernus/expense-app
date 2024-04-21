@@ -213,3 +213,5 @@ if 'NO_HTTPS' not in os.environ:
     # browsers also make these cookies invisible in the dev tools.
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+
+TEST_RUNNER = "redgreenunittest.django.runner.RedGreenDiscoverRunner"
