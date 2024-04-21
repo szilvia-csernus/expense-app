@@ -108,13 +108,36 @@ class ExpenseSerializerTestCase(APITestCase):
 
 
 class ReceiptUploadsSerializerTestCase(APITestCase):
-    def test_valid_data(self):
+    def test_no_file(self):
+        data = {}
+        serializer = ReceiptUploadsSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+
+    def test_valid_jpg_file(self):
         file = SimpleUploadedFile("file.jpg", b"file_content", content_type="image/jpeg")
         data = {'receipt': file}
         serializer = ReceiptUploadsSerializer(data=data)
         self.assertTrue(serializer.is_valid())
 
-    def test_invalid_data(self):
+    def test_valid_png_file(self):
+        file = SimpleUploadedFile("file.png", b"file_content", content_type="image/png")
+        data = {'receipt': file}
+        serializer = ReceiptUploadsSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+
+    def test_valid_pdf_file(self):
+        file = SimpleUploadedFile("file.pdf", b"file_content", content_type="application/pdf")
+        data = {'receipt': file}
+        serializer = ReceiptUploadsSerializer(data=data)
+        self.assertTrue(serializer.is_valid())
+
+    def test_invalid_image_file(self):
+        file = SimpleUploadedFile("file.gif", b"file_content", content_type="image/gif")
+        data = {'receipt': file}
+        serializer = ReceiptUploadsSerializer(data=data)
+        self.assertFalse(serializer.is_valid())
+
+    def test_invalid_non_image_file(self):
         file = SimpleUploadedFile("file.txt", b"file_content", content_type="text/plain")
         data = {'receipt': file}
         serializer = ReceiptUploadsSerializer(data=data)
