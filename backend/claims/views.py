@@ -48,8 +48,8 @@ def validate_form(request):
         return Response(
             status=400,
             data={
-                "message": "Escaped Frontend validation:\
-                The total size of all files exceeds the limit."
+                "message": ("Escaped Frontend validation: "
+                            "The total size of all files exceeds the limit.")
             }
         )
 
@@ -62,8 +62,8 @@ def validate_form(request):
         return Response(
             status=400,
             data={
-                "message": "Escaped Frontend validation: \
-                Invalid image file."})
+                "message": ("Escaped Frontend validation: "
+                            "Invalid image file.")})
 
     return None
 
