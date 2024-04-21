@@ -158,6 +158,13 @@ def process_file(file, max_size):
         elif file.content_type == 'application/pdf':
             # It's a PDF. Write it directly to the buffer.
             buffer.write(file.read())
+        
+        else:
+            # Even though we don't expect to receive any other file types,
+            # we still handle this case in order to future-proof the code.
+            return Response(status=406, data={
+                            "message": f"Invalid file type for {file.name}"})
+
     except Exception as e:
         return Response(status=406, data={
                         "message": f"Error processing file {file.name}",
