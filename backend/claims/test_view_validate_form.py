@@ -1,6 +1,6 @@
 from django.core.files.uploadedfile import SimpleUploadedFile
 from rest_framework.test import APIRequestFactory, APITestCase
-from .views import validate_form
+from .utils import validate_form
 
 class ValidateFormTestCase(APITestCase):
     def setUp(self):
