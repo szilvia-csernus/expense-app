@@ -10,6 +10,27 @@ on:
       - .github/workflows/**
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+  
+      - name: Set up Python
+        uses: actions/setup-python@v5
+  
+      - name: Install backend dependencies
+        run: |
+          cd backend
+          pip install -r requirements.txt
+  
+      - name: Run backend tests
+        env:
+          SECRET_KEY: ${{ secrets.DJANGO_TEST_SECRET }}
+        run: |
+          cd backend
+          python manage.py test
+  
   deploy:
     runs-on: ubuntu-latest
 
