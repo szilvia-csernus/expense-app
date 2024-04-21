@@ -18,6 +18,8 @@ jobs:
   
       - name: Set up Python
         uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
   
       - name: Install backend dependencies
         run: |
@@ -32,6 +34,7 @@ jobs:
           python manage.py test
   
   deploy:
+    needs: test
     runs-on: ubuntu-latest
 
     steps:
