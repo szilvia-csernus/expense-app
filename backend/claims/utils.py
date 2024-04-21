@@ -171,6 +171,9 @@ def generate_form_pdf(form):
     Generate HTML from the form data, convert it to PDF and add it to the
     buffer. Return the buffer.
     """
+    if None in form.values():
+          return Response(status=500, data={
+                          "message": "Empty form data. Cannot generate PDF"})
     # Create a file-like buffer for the form to receive PDF data.
     buffer = BytesIO()
     try:
@@ -178,7 +181,7 @@ def generate_form_pdf(form):
         pisa.CreatePDF(html_content, dest=buffer)
     except Exception as e:
         return Response(status=500, data={"message": "Error generating PDF",
-                                          "error": e})
+                                          "error": str(e)})
 
     buffer.seek(0)
     return buffer
