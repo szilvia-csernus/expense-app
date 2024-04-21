@@ -209,6 +209,7 @@ def generate_attachment(form):
         if receipt_file is None:
             break
 
+        receipt_buffer = None
         try:
             max_size = (700, 1100)
             receipt_buffer = process_file(receipt_file, max_size)
@@ -225,7 +226,8 @@ def generate_attachment(form):
                                           try another format.", "error": e})
 
         finally:
-            receipt_buffer.close()
+            if receipt_buffer is not None:
+                receipt_buffer.close()
 
         i += 1
 
