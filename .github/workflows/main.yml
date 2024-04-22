@@ -8,6 +8,13 @@ on:
       - .gitignore
       - readme-images/**
       - .github/workflows/**
+  pull_request:
+    branches: [ main ]
+    paths-ignore:
+      - README.md
+      - .gitignore
+      - readme-images/**
+      - .github/workflows/**
 
 jobs:
   test:
@@ -42,6 +49,9 @@ jobs:
   
   deploy:
     needs: test
+    # Only deploy when the push event is triggered on the main branch
+    # meaning that opening a new pull request will not trigger a deployment
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
     steps:
