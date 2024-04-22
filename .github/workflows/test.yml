@@ -29,6 +29,14 @@ jobs:
       - name: Run backend tests
         env:
           SECRET_KEY: ${{ secrets.DJANGO_TEST_SECRET }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          CLOUDINARY_URL: ${{ secrets.CLOUDINARY_URL }}
+          EMAIL_HOST_USER: ${{ secrets.EMAIL_HOST_USER }}
+          EMAIL_HOST_PASS: ${{ secrets.EMAIL_HOST_PASS }}
+          BACKEND_HOST: ${{ secrets.BACKEND_HOST }}
+          FRONTEND_URL: ${{ secrets.FRONTEND_URL }}
+          NO_HTTPS: ${{ secrets.NO_HTTPS }}
+
         run: |
           cd backend
           python manage.py test
