@@ -57,7 +57,19 @@ const churchSlice = createSlice({
 		},
 		setChurchDetails(state, action) {
 			state.logo = action.payload['logo'];
-			state.costPurposes = action.payload['cost_purposes'];
+			
+			// Sort costPurposes array
+  		const costPurposes = action.payload['cost_purposes'];
+  		costPurposes.sort((a: { name: string; cost_code: number }, b: { name: string; cost_code: number }) => {
+    	// Make "Other" or "other" appear last
+    	if (a.name.toLowerCase() === 'other') return 1;
+    	if (b.name.toLowerCase() === 'other') return -1;
+
+    	// Otherwise, sort in alphabetical order
+    	return a.name.localeCompare(b.name);
+  		});
+		
+			state.costPurposes = costPurposes;
 		},
 		setChurches(state, action) {
 			state.churches = action.payload;
