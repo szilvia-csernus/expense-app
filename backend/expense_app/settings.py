@@ -13,28 +13,28 @@ load_dotenv(os.path.join(BASE_DIR, '.env'))
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv("SECRET_KEY")
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG') == 'True'
+DEBUG = os.environ.get('DEBUG') == 'True'
 
 # This is a list of strings representing the host/domain names that Django
 # can serve. This is a security measure to prevent HTTP Host header attacks.
-ALLOWED_HOSTS = [os.getenv("BACKEND_HOST"), "localhost"]
+ALLOWED_HOSTS = [os.environ.get("BACKEND_HOST"), "localhost"]
 
 # This is a list of origins that are authorized to make cross-origin requests.
 # Cross-Origin Resource Sharing (CORS) is a mechanism that allows many
 # resources (e.g., fonts, JavaScript, etc.) on a web page to be requested from
 # another domain outside the domain from which the resource originated.
 CORS_ALLOWED_ORIGINS = [
-    os.getenv("FRONTEND_URL")
+    os.environ.get("FRONTEND_URL")
 ]
 
 # This setting is needed if the frontend sends POST requests to the backend.
 # Our frontend and backend are under different domains (unless we change it
 # later) this setting is necessary.
-CSRF_TRUSTED_ORIGINS = [os.getenv("FRONTEND_URL")]
+CSRF_TRUSTED_ORIGINS = [os.environ.get("FRONTEND_URL")]
 
 
 # Application definition
@@ -159,7 +159,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 FILE_UPLOAD_MAX_MEMORY_SIZE = 6 * 1024 * 1024  # 6 MB
 
 CLOUDINARY_STORAGE = {
-    'CLOUDINARY_URL': os.getenv("CLOUDINARY_URL"),
+    'CLOUDINARY_URL': os.environ.get("CLOUDINARY_URL"),
 }
 
 MEDIA_URL = '/media/'
