@@ -7,7 +7,8 @@ on:
       - README.md
       - .gitignore
       - readme-images/**
-      # - .github/workflows/**
+      - .github/workflows/**
+  workflow_dispatch:
 
 jobs:
   test:

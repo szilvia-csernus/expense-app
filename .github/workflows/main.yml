@@ -8,13 +8,7 @@ on:
       - .gitignore
       - readme-images/**
       - .github/workflows/**
-  pull_request:
-    branches: [ main ]
-    paths-ignore:
-      - README.md
-      - .gitignore
-      - readme-images/**
-      - .github/workflows/**
+  workflow_dispatch:
 
 jobs:
   test:
